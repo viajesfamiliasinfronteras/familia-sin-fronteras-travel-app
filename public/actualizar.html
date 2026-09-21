@@ -1,0 +1,13 @@
+<!doctype html><meta charset="utf-8"><title>Actualizando</title>
+<script>
+(async()=>{
+  try{
+    const regs=await navigator.serviceWorker?.getRegistrations?.();
+    if(regs) await Promise.all(regs.map(r=>r.unregister()));
+    const keys=await caches?.keys?.();
+    if(keys) await Promise.all(keys.map(k=>caches.delete(k)));
+  }catch(e){}
+  location.replace('/?v=3');
+})();
+</script>
+<p>Actualizando la app…</p>

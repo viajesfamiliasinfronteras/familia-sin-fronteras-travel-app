@@ -42,7 +42,7 @@ input{
       <form class="form" id="signup">
         <h1>Crea tu cuenta</h1>
         <div class="field"><input id="name" placeholder="Nombre y apellido" autocomplete="name"></div>
-        <div class="field"><input id="whatsapp" placeholder="WhatsApp" inputmode="tel" autocomplete="tel"></div>
+        <div class="field"><input id="whatsapp" value="+" placeholder="+5511999999999" inputmode="tel" autocomplete="tel"></div>
         <div class="field">
           <input id="password" type="password" placeholder="Contraseña" autocomplete="new-password">
           <button type="button" class="eye" id="eye" aria-label="Mostrar contraseña">◉</button>
@@ -53,15 +53,69 @@ input{
   </main>
 </div>
 <script>
-const p=document.getElementById('password');
-document.getElementById('eye').onclick=()=>{p.type=p.type==='password'?'text':'password'};
-document.getElementById('signup').onsubmit=(e)=>{
+function normalizePhone(value){
+  const digits=String(value||'').replace(/\D/g,'');
+  return digits ? '+'+digits : '+';
+}
+async function hashPassword(password,salt){
+  const data=new TextEncoder().encode(salt+'::'+password);
+  const digest=await crypto.subtle.digest('SHA-256',data);
+  return Array.from(new Uint8Array(digest))
+    .map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+function makeSalt(){
+  if(crypto.randomUUID) return crypto.randomUUID();
+  const arr=new Uint32Array(4); crypto.getRandomValues(arr);
+  return Array.from(arr).join('-');
+}
+
+const pass=document.getElementById('password');
+const phone=document.getElementById('whatsapp');
+
+phone.addEventListener('input',()=>{
+  const n=normalizePhone(phone.value);
+  phone.value=n;
+  try{phone.setSelectionRange(n.length,n.length)}catch(e){}
+});
+phone.addEventListener('focus',()=>{
+  if(!phone.value) phone.value='+';
+});
+
+document.getElementById('eye').onclick=()=>{
+  pass.type=pass.type==='password'?'text':'password';
+};
+
+document.getElementById('signup').onsubmit=async(e)=>{
   e.preventDefault();
+
   const name=document.getElementById('name').value.trim();
-  const whatsapp=document.getElementById('whatsapp').value.trim();
-  if(!name||!whatsapp||!p.value){alert('Completa los tres campos');return;}
-  localStorage.setItem('fsf_user',JSON.stringify({name,whatsapp}));
-  alert('Cuenta guardada. Siguiente bloque: elegir viaje.');
+  const whatsapp=normalizePhone(phone.value);
+  const password=pass.value;
+
+  if(!name || whatsapp.length<8 || !password){
+    alert('Completa nombre, WhatsApp y contraseña.');
+    return;
+  }
+  if(password.length<6){
+    alert('La contraseña debe tener al menos 6 caracteres.');
+    return;
+  }
+
+  const salt=makeSalt();
+  const passwordHash=await hashPassword(password,salt);
+
+  localStorage.setItem('fsf_user',JSON.stringify({
+    name,
+    whatsapp,
+    passwordSalt:salt,
+    passwordHash,
+    userCreated:true,
+    loggedIn:true,
+    rememberMe:true,
+    createdAt:new Date().toISOString()
+  }));
+
+  window.location.replace('/elegir-viaje.html?v=3');
 };
 </script>
 </body>
