@@ -1,3 +1,3 @@
 # Familia Sin Fronteras Travel App
 
-Base funcional para Hostinger Web Apps.
+v1.0.4 — reconstrucción responsive de Bienvenida y Crear cuenta.
