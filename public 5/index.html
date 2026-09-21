@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Familia Sin Fronteras Travel App</title>
+<link rel="stylesheet" href="/styles.css">
+<style>
+.artboard{aspect-ratio:564/1168}
+.tagline{
+  position:absolute;top:52.2%;left:8%;right:8%;text-align:center;
+  font-family:"Courier New",Courier,monospace;font-size:clamp(13px,3.5vw,15px);
+  line-height:1.1;font-weight:700;letter-spacing:.01em
+}
+.actions{position:absolute;z-index:10;pointer-events:auto;position:absolute;left:7%;right:7%;top:58%;display:grid;gap:12px}
+.actions a{position:relative;z-index:11;pointer-events:auto;cursor:pointer;
+  height:58px;border:3px solid #151515;border-radius:18px;display:grid;place-items:center;
+  text-decoration:none;color:#151515;font-weight:900;font-size:clamp(15px,4.2vw,18px);
+  background:#dc6a40
+}
+.actions a.secondary{background:#f4eadb}
+</style>
+</head>
+<body>
+<div class="page">
+  <main class="artboard">
+    <img class="art" src="/welcome-art.png" alt="">
+    <div class="overlay">
+      <div class="tagline">Tu asistente de viaje grupal</div>
+      <div class="actions">
+        <a href="/crear-cuenta">CREAR USUARIO</a>
+        <a class="secondary" href="/login.html" id="loginLink">YA TENGO UNA CUENTA</a>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+(function(){
+  const loginLink = document.getElementById('loginLink');
+  if (loginLink) {
+    loginLink.addEventListener('click', function(e){
+      e.preventDefault();
+      window.location.assign('/login.html');
+    });
+  }
+
+  let user = null;
+  try { user = JSON.parse(localStorage.getItem('fsf_user') || 'null'); } catch (_) {}
+
+  if (user && user.userCreated && user.loggedIn) {
+    const trip = localStorage.getItem('fsf_trip');
+    window.location.replace(trip ? '/mi-perfil.html' : '/elegir-viaje.html');
+  }
+})();
+</script>
+
+</body>
+</html>
