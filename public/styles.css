@@ -1,0 +1,8 @@
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:#f4ecd9;color:#151515}
+body{font-family:Arial,Helvetica,sans-serif}
+.page{width:100%;min-height:100svh;display:flex;justify-content:center;background:#f4ecd9}
+.artboard{position:relative;width:min(100vw,430px);background:#f4ecd9;overflow:hidden}
+.art{display:block;width:100%;height:auto;pointer-events:none;user-select:none}
+.overlay{position:absolute;inset:0}
+button,input,a{font:inherit}
