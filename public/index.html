@@ -3,71 +3,36 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#f4ecd9">
-<link rel="manifest" href="/manifest.webmanifest">
 <title>Familia Sin Fronteras Travel App</title>
+<link rel="stylesheet" href="/styles.css">
 <style>
-*{box-sizing:border-box}
-html,body{margin:0;min-height:100%;background:#f4ecd9}
-body{display:flex;justify-content:center;font-family:Arial,Helvetica,sans-serif;color:#111}
-.screen{
-  position:relative;
-  width:min(100vw,430px);
-  aspect-ratio:430/746;
-  background:#f4ecd9;
-  overflow:hidden;
-}
-.bg{
-  position:absolute;
-  inset:0;
-  width:100%;
-  height:100%;
-  object-fit:contain;
-  object-position:center top;
-  display:block;
-}
+.artboard{aspect-ratio:564/1168}
 .tagline{
-  position:absolute;
-  top:50.7%;
-  left:8%;
-  right:8%;
-  text-align:center;
-  font-family:"Courier New",Courier,monospace;
-  font-size:clamp(13px,3.6vw,15px);
-  line-height:1.1;
-  font-weight:700;
+  position:absolute;top:52.2%;left:8%;right:8%;text-align:center;
+  font-family:"Courier New",Courier,monospace;font-size:clamp(13px,3.5vw,15px);
+  line-height:1.1;font-weight:700;letter-spacing:.01em
 }
-.actions{
-  position:absolute;
-  top:56.5%;
-  left:7%;
-  right:7%;
-  display:grid;
-  gap:12px;
-}
+.actions{position:absolute;left:7%;right:7%;top:58%;display:grid;gap:12px}
 .actions a{
-  height:58px;
-  border:3px solid #111;
-  border-radius:20px;
-  display:grid;
-  place-items:center;
-  text-decoration:none;
-  color:#111;
-  font-size:clamp(15px,4vw,18px);
-  font-weight:900;
+  height:58px;border:3px solid #151515;border-radius:18px;display:grid;place-items:center;
+  text-decoration:none;color:#151515;font-weight:900;font-size:clamp(15px,4.2vw,18px);
+  background:#dc6a40
 }
-.actions .create{background:#df653b}
-.actions .login{background:#f5ecde}
+.actions a.secondary{background:#f4eadb}
 </style>
 </head>
 <body>
-<main class="screen">
-  <img class="bg" src="/welcome-bg.jpg" alt="">
-  <div class="tagline">Tu asistente de viaje grupal</div>
-  <div class="actions">
-    <a class="create" href="/crear-cuenta">CREAR USUARIO</a>
-    <a class="login" href="/login">YA TENGO UNA CUENTA</a>
-  </div>
-</main>
+<div class="page">
+  <main class="artboard">
+    <img class="art" src="/welcome-art.png" alt="">
+    <div class="overlay">
+      <div class="tagline">Tu asistente de viaje grupal</div>
+      <div class="actions">
+        <a href="/crear-cuenta">CREAR USUARIO</a>
+        <a class="secondary" href="#" onclick="return false;">YA TENGO UNA CUENTA</a>
+      </div>
+    </div>
+  </main>
+</div>
 </body>
 </html>
