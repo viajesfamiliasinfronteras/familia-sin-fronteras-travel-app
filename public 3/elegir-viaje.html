@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>¿Cuál es tu viaje grupal?</title>
+<style>
+:root{
+  --cream:#f8f0dd;
+  --ink:#111712;
+  --terracotta:#dc5632;
+  --orange:#e88443;
+  --olive:#63784b;
+  --mustard:#e4a22c;
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:var(--cream);color:var(--ink)}
+body{display:flex;justify-content:center;font-family:Arial,Helvetica,sans-serif}
+.screen{
+  width:min(100%,430px);
+  min-height:100svh;
+  position:relative;
+  overflow:hidden;
+  background:var(--cream);
+  padding:18px 18px 96px;
+}
+.grid{
+  position:absolute;left:0;right:0;top:0;height:310px;opacity:.8;
+  background:
+    repeating-linear-gradient(90deg,transparent 0 53px,rgba(224,105,47,.78) 54px 56px),
+    repeating-linear-gradient(0deg,transparent 0 53px,rgba(224,105,47,.78) 54px 56px);
+}
+.back{
+  position:relative;z-index:4;width:48px;height:48px;border:0;border-radius:50%;
+  background:#fff9ec;box-shadow:0 4px 11px rgba(0,0,0,.16);
+  color:var(--ink);font-size:34px;line-height:1;text-decoration:none;
+  display:grid;place-items:center
+}
+.header{position:relative;z-index:3;text-align:center;margin:10px 7px 24px}
+.header h1{
+  margin:0 0 10px;font-family:"Cooper Black","Cooper Std Black",Georgia,serif;
+  font-weight:900;font-size:45px;line-height:.94;letter-spacing:-1.5px
+}
+.header p{margin:0;font-size:16px}
+.cards{position:relative;z-index:3;display:grid;gap:10px}
+.trip{
+  display:grid;grid-template-columns:46% 1fr 26px;align-items:center;
+  width:100%;min-height:116px;padding:7px;border:2.5px solid var(--ink);
+  border-radius:19px;background:rgba(255,249,234,.94);color:var(--ink);
+  text-align:left;cursor:pointer
+}
+.trip img{width:100%;height:100px;object-fit:cover;border-radius:12px;display:block}
+.copy{padding:0 10px}
+.copy strong{
+  display:block;font-family:"Cooper Black","Cooper Std Black",Georgia,serif;
+  font-size:29px;line-height:1;font-weight:900
+}
+.copy span{display:block;margin-top:6px;font-size:19px}
+.arrow{font-size:42px;font-weight:300;line-height:1}
+.trip.selected{outline:4px solid rgba(220,86,50,.28);background:#fff4df}
+.continue{
+  position:relative;z-index:3;width:100%;height:61px;margin-top:18px;
+  border:2.5px solid var(--ink);border-radius:29px;background:var(--terracotta);
+  color:white;font-size:20px;letter-spacing:.08em
+}
+.wave{
+  position:absolute;z-index:1;left:-22px;right:-22px;bottom:-58px;height:122px;
+  background:var(--olive);border-radius:52% 48% 0 0/46% 42% 0 0;transform:rotate(-2deg)
+}
+.sun{
+  position:absolute;z-index:0;right:16px;bottom:-6px;width:110px;height:110px;
+  border-radius:50%;background:var(--mustard)
+}
+@media(max-width:370px){
+  .header h1{font-size:40px}
+  .trip{grid-template-columns:44% 1fr 24px}
+  .copy strong{font-size:25px}.copy span{font-size:17px}
+}
+</style>
+</head>
+<body>
+<main class="screen">
+  <div class="grid"></div>
+  <a class="back" href="/crear-cuenta" aria-label="Volver">‹</a>
+
+  <section class="header">
+    <h1>¿Cuál es tu<br>viaje grupal?</h1>
+    <p>Selecciona el grupo al que ya estás inscrito.</p>
+  </section>
+
+  <section class="cards">
+    <button class="trip" type="button" data-id="japon-octubre-2026" data-label="Japón — Octubre 2026">
+      <img src="/assets/trips/japon-octubre.png" alt="Japón en otoño">
+      <div class="copy"><strong>Japón</strong><span>Octubre 2026</span></div><div class="arrow">›</div>
+    </button>
+
+    <button class="trip" type="button" data-id="japon-enero-2027" data-label="Japón — Enero 2027">
+      <img src="/assets/trips/japon-enero.png" alt="Japón en invierno">
+      <div class="copy"><strong>Japón</strong><span>Enero 2027</span></div><div class="arrow">›</div>
+    </button>
+
+    <button class="trip" type="button" data-id="islandia-febrero-2027" data-label="Islandia — Febrero 2027">
+      <img src="/assets/trips/islandia.png" alt="Islandia">
+      <div class="copy"><strong>Islandia</strong><span>Febrero 2027</span></div><div class="arrow">›</div>
+    </button>
+
+    <button class="trip" type="button" data-id="china-abril-2027" data-label="China — Abril 2027">
+      <img src="/assets/trips/china.png" alt="China">
+      <div class="copy"><strong>China</strong><span>Abril 2027</span></div><div class="arrow">›</div>
+    </button>
+  </section>
+
+  <button class="continue" id="continue" type="button">CONTINUAR</button>
+  <div class="sun"></div>
+  <div class="wave"></div>
+</main>
+
+<script>
+const TRIP_KEY='fsf_trip';
+let selected=localStorage.getItem(TRIP_KEY)||'';
+const cards=[...document.querySelectorAll('.trip')];
+function render(){cards.forEach(c=>c.classList.toggle('selected',c.dataset.id===selected))}
+render();
+cards.forEach(c=>c.addEventListener('click',()=>{selected=c.dataset.id;render()}));
+document.getElementById('continue').addEventListener('click',()=>{
+  if(!selected){alert('Selecciona tu viaje grupal.');return}
+  const c=document.querySelector('.trip[data-id="'+selected+'"]');
+  localStorage.setItem(TRIP_KEY,selected);
+  localStorage.setItem('fsf_trip_label',c?.dataset.label||selected);
+  location.href='/mi-perfil.html';
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Mi perfil</title>
+<style>
+:root{
+  --cream:#f8f0dd;--ink:#111712;--terracotta:#dc5632;
+  --olive:#63784b;--mustard:#e4a22c;--line:#66716d
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:var(--cream);color:var(--ink)}
+body{display:flex;justify-content:center;font-family:Arial,Helvetica,sans-serif}
+.screen{
+  width:min(100%,430px);min-height:100svh;position:relative;overflow:hidden;
+  background:var(--cream);padding:18px 20px 100px
+}
+.back{
+  position:relative;z-index:5;width:48px;height:48px;border:0;border-radius:50%;
+  background:#fff9ec;box-shadow:0 4px 11px rgba(0,0,0,.16);
+  color:var(--ink);font-size:34px;text-decoration:none;display:grid;place-items:center
+}
+.decor{position:absolute;right:-18px;top:34px;width:155px;height:130px;z-index:0}
+.decor:before{
+  content:"";position:absolute;right:16px;top:0;width:102px;height:102px;
+  background:var(--mustard);border-radius:50%
+}
+.decor:after{
+  content:"";position:absolute;right:-2px;bottom:7px;width:160px;height:58px;
+  background:var(--olive);border-radius:80% 0 0 60%;transform:rotate(-15deg)
+}
+.head{position:relative;z-index:3;margin:3px 0 18px 24px}
+.head h1{
+  margin:0;font-family:"Cooper Black","Cooper Std Black",Georgia,serif;
+  font-size:50px;line-height:.95;font-weight:900
+}
+.head p{margin:4px 0 0;font-size:16px}
+form{position:relative;z-index:3;display:grid;gap:10px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+label,.label{display:block;margin:0 0 5px;font-size:14px;font-weight:800}
+.input,textarea{
+  width:100%;border:1.8px solid var(--line);border-radius:11px;
+  background:rgba(255,249,232,.72);font-size:15px;color:var(--ink);padding:0 13px
+}
+.input{height:46px}textarea{height:72px;padding-top:11px;resize:vertical}
+.group{display:grid;gap:5px}
+.chips{display:flex;gap:5px;flex-wrap:wrap}
+.chip{
+  border:1.6px solid var(--line);border-radius:999px;background:rgba(255,249,232,.72);
+  padding:7px 11px;font-size:12px;line-height:1
+}
+.chip.selected{background:var(--terracotta);color:#fff;border-color:var(--ink)}
+.interests{display:grid;grid-template-columns:repeat(5,1fr);gap:5px}
+.interest{
+  min-height:61px;border:1.6px solid var(--line);border-radius:9px;background:#fff9e8;
+  overflow:hidden;padding:0;cursor:pointer
+}
+.interest img{display:block;width:100%;height:100%;object-fit:cover}
+.interest.selected{outline:3px solid var(--terracotta);border-color:var(--ink)}
+.personality{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}
+.personality .chip{padding:7px 3px;font-size:10.5px;text-align:center}
+.continue{
+  width:100%;height:58px;margin-top:9px;border:2.5px solid var(--ink);border-radius:26px;
+  background:var(--terracotta);color:white;font-size:19px;letter-spacing:.07em
+}
+.saved{display:none;text-align:center;color:var(--olive);font-weight:800;font-size:13px}
+.wave{
+  position:absolute;left:-35px;right:-35px;bottom:-72px;height:132px;z-index:0;
+  background:var(--olive);border-radius:50% 50% 0 0/45% 45% 0 0;transform:rotate(-2deg)
+}
+.rainbow{
+  position:absolute;right:-50px;bottom:-35px;width:116px;height:116px;border-radius:50%;
+  border:12px solid #db5934;box-shadow:0 0 0 10px #ef9d2d,0 0 0 19px var(--cream),0 0 0 27px var(--olive);z-index:0
+}
+@media(max-width:365px){
+  .head h1{font-size:45px}
+  .personality{grid-template-columns:repeat(3,1fr)}
+}
+</style>
+</head>
+<body>
+<main class="screen">
+  <div class="decor"></div>
+  <a class="back" href="/elegir-viaje.html" aria-label="Volver">‹</a>
+  <section class="head">
+    <h1>Mi perfil</h1>
+    <p>Cuéntanos un poco sobre ti.</p>
+  </section>
+
+  <form id="profileForm">
+    <div class="two">
+      <div><label for="firstName">Nombre</label><input class="input" id="firstName" placeholder="Tu nombre"></div>
+      <div><label for="lastName">Apellido</label><input class="input" id="lastName" placeholder="Tu apellido"></div>
+    </div>
+
+    <div><label for="nationality">Nacionalidad</label><input class="input" id="nationality" placeholder="Selecciona tu nacionalidad"></div>
+
+    <div class="group">
+      <span class="label">Rango de edad</span>
+      <div class="chips single" data-key="age">
+        <button class="chip" type="button">18 - 29</button><button class="chip" type="button">30 - 44</button>
+        <button class="chip" type="button">45 - 59</button><button class="chip" type="button">60 - 69</button><button class="chip" type="button">70+</button>
+      </div>
+    </div>
+
+    <div class="group">
+      <span class="label">¿Con quién viajas?</span>
+      <div class="chips single" data-key="travelWith">
+        <button class="chip" type="button">Solo/a</button><button class="chip" type="button">Amigos</button>
+        <button class="chip" type="button">Pareja</button><button class="chip" type="button">Familia</button><button class="chip" type="button">Otro</button>
+      </div>
+    </div>
+
+    <div class="group">
+      <span class="label">Mis intereses</span>
+      <div class="interests multi" data-key="interests">
+        <button class="interest" type="button" data-value="Gastronomía"><img src="/assets/interests/gastronomia.png" alt="Gastronomía"></button>
+        <button class="interest" type="button" data-value="Cultura"><img src="/assets/interests/cultura.png" alt="Cultura"></button>
+        <button class="interest" type="button" data-value="Naturaleza"><img src="/assets/interests/naturaleza.png" alt="Naturaleza"></button>
+        <button class="interest" type="button" data-value="Compras"><img src="/assets/interests/compras.png" alt="Compras"></button>
+        <button class="interest" type="button" data-value="Música"><img src="/assets/interests/musica.png" alt="Música"></button>
+        <button class="interest" type="button" data-value="Arte"><img src="/assets/interests/arte.png" alt="Arte"></button>
+        <button class="interest" type="button" data-value="Fotografía"><img src="/assets/interests/fotografia.png" alt="Fotografía"></button>
+        <button class="interest" type="button" data-value="Historia"><img src="/assets/interests/historia.png" alt="Historia"></button>
+        <button class="interest" type="button" data-value="Vida nocturna"><img src="/assets/interests/vida-nocturna.png" alt="Vida nocturna"></button>
+        <button class="interest" type="button" data-value="Idiomas"><img src="/assets/interests/idiomas.png" alt="Idiomas"></button>
+      </div>
+    </div>
+
+    <div class="group">
+      <span class="label">Mi personalidad</span>
+      <div class="personality multi" data-key="personality">
+        <button class="chip" type="button">Introvertido/a</button><button class="chip" type="button">Extrovertido/a</button><button class="chip" type="button">Tímido/a</button><button class="chip" type="button">Amistoso/a</button>
+        <button class="chip" type="button">Serio/a</button><button class="chip" type="button">Gracioso/a</button><button class="chip" type="button">Aventurero/a</button><button class="chip" type="button">Tranquilo/a</button>
+        <button class="chip" type="button">Estructurado/a</button><button class="chip" type="button">Relajado/a</button><button class="chip" type="button">Organizado/a</button><button class="chip" type="button">Espontáneo/a</button>
+        <button class="chip" type="button">Paciente</button><button class="chip" type="button">Impaciente</button><button class="chip" type="button">Rápido/a</button><button class="chip" type="button">Lento/a</button>
+        <button class="chip" type="button">Cariñoso/a</button><button class="chip" type="button">Reservado/a</button>
+      </div>
+    </div>
+
+    <div>
+      <label for="about">Cuéntale al grupo algo sobre ti</label>
+      <textarea id="about" placeholder="Escribe un poco sobre ti..."></textarea>
+    </div>
+
+    <div class="saved" id="saved">Perfil guardado ✓</div>
+    <button class="continue" type="submit">CONTINUAR</button>
+  </form>
+
+  <div class="wave"></div>
+  <div class="rainbow"></div>
+</main>
+
+<script>
+const PROFILE_KEY='fsf_profile';
+let profile={};try{profile=JSON.parse(localStorage.getItem(PROFILE_KEY)||'{}')}catch(e){}
+let user={};try{user=JSON.parse(localStorage.getItem('fsf_user')||'{}')}catch(e){}
+const fullName=String(user.name||user.fullName||'').trim();
+const parts=fullName.split(/\s+/).filter(Boolean);
+
+firstName.value=profile.firstName||(parts[0]||'');
+lastName.value=profile.lastName||(parts.length>1?parts.slice(1).join(' '):'');
+nationality.value=profile.nationality||'';
+about.value=profile.about||'';
+
+document.querySelectorAll('.single').forEach(group=>{
+  const key=group.dataset.key;
+  group.querySelectorAll('button').forEach(btn=>{
+    if(profile[key]===btn.textContent.trim())btn.classList.add('selected');
+    btn.onclick=()=>{
+      group.querySelectorAll('button').forEach(b=>b.classList.remove('selected'));
+      btn.classList.add('selected');
+    };
+  });
+});
+
+document.querySelectorAll('.multi').forEach(group=>{
+  const key=group.dataset.key;
+  const values=profile[key]||[];
+  group.querySelectorAll('button').forEach(btn=>{
+    const value=btn.dataset.value||btn.textContent.trim();
+    if(values.includes(value))btn.classList.add('selected');
+    btn.onclick=()=>btn.classList.toggle('selected');
+  });
+});
+
+profileForm.onsubmit=e=>{
+  e.preventDefault();
+  const single=k=>document.querySelector('[data-key="'+k+'"] .selected')?.textContent.trim()||'';
+  const multi=k=>[...document.querySelectorAll('[data-key="'+k+'"] .selected')].map(b=>b.dataset.value||b.textContent.trim());
+
+  const data={
+    firstName:firstName.value.trim(),
+    lastName:lastName.value.trim(),
+    nationality:nationality.value.trim(),
+    age:single('age'),
+    travelWith:single('travelWith'),
+    interests:multi('interests'),
+    personality:multi('personality'),
+    about:about.value.trim(),
+    updatedAt:new Date().toISOString()
+  };
+
+  localStorage.setItem(PROFILE_KEY,JSON.stringify(data));
+  saved.style.display='block';
+  setTimeout(()=>saved.style.display='none',1800);
+};
+</script>
+</body>
+</html>
