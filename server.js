@@ -2,16 +2,39 @@ const http=require('http');
 const fs=require('fs');
 const path=require('path');
 const root=path.join(__dirname,'public');
-const types={'.html':'text/html; charset=utf-8','.css':'text/css; charset=utf-8','.js':'text/javascript; charset=utf-8','.png':'image/png','.jpg':'image/jpeg','.jpeg':'image/jpeg'};
+const types={'.html':'text/html; charset=utf-8','.css':'text/css; charset=utf-8','.js':'text/javascript; charset=utf-8','.png':'image/png','.jpg':'image/jpeg','.jpeg':'image/jpeg','.webmanifest':'application/manifest+json; charset=utf-8'};
+
+const routes={
+  '/':'/index.html',
+  '/crear-cuenta':'/crear-cuenta.html',
+  '/login':'/login.html',
+  '/elegir-viaje':'/elegir-viaje.html',
+  '/mi-perfil':'/mi-perfil.html'
+};
+
 http.createServer((req,res)=>{
   let u=req.url.split('?')[0];
-  if(u==='/') u='/index.html';
-  if(u==='/crear-cuenta') u='/crear-cuenta.html';
+  if(routes[u]) u=routes[u];
+
   const file=path.join(root,u);
   if(!file.startsWith(root)){res.writeHead(403);return res.end('Forbidden');}
+
   fs.readFile(file,(err,data)=>{
-    if(err){res.writeHead(404,{'Content-Type':'text/plain; charset=utf-8'});return res.end('Not found');}
-    res.writeHead(200,{'Content-Type':types[path.extname(file)]||'application/octet-stream'});
+    if(err){
+      res.writeHead(404,{'Content-Type':'text/plain; charset=utf-8','Cache-Control':'no-store'});
+      return res.end('Not found');
+    }
+
+    const ext=path.extname(file);
+    const headers={'Content-Type':types[ext]||'application/octet-stream'};
+
+    if(ext==='.html' || ext==='.js' || ext==='.webmanifest'){
+      headers['Cache-Control']='no-store, no-cache, must-revalidate, proxy-revalidate';
+      headers['Pragma']='no-cache';
+      headers['Expires']='0';
+    }
+
+    res.writeHead(200,headers);
     res.end(data);
   });
 }).listen(process.env.PORT||3000);
