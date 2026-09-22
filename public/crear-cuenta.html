@@ -53,44 +53,46 @@ input{
   </main>
 </div>
 <script>
+const KEY='fsf_travel_user_v1';
+const LEGACY='fsf_user';
+
 function normalizePhone(value){
   const digits=String(value||'').replace(/\D/g,'');
   return digits ? '+'+digits : '+';
 }
+function splitName(full){
+  const parts=String(full||'').trim().split(/\s+/).filter(Boolean);
+  if(parts.length<=1) return {firstName:parts[0]||'',lastName:''};
+  return {firstName:parts.slice(0,-1).join(' '),lastName:parts[parts.length-1]};
+}
 async function hashPassword(password,salt){
   const data=new TextEncoder().encode(salt+'::'+password);
   const digest=await crypto.subtle.digest('SHA-256',data);
-  return Array.from(new Uint8Array(digest))
-    .map(b=>b.toString(16).padStart(2,'0')).join('');
+  return Array.from(new Uint8Array(digest)).map(b=>b.toString(16).padStart(2,'0')).join('');
 }
 function makeSalt(){
   if(crypto.randomUUID) return crypto.randomUUID();
-  const arr=new Uint32Array(4); crypto.getRandomValues(arr);
+  const arr=new Uint32Array(4);
+  crypto.getRandomValues(arr);
   return Array.from(arr).join('-');
 }
 
-const pass=document.getElementById('password');
+const p=document.getElementById('password');
 const phone=document.getElementById('whatsapp');
 
-phone.addEventListener('input',()=>{
-  const n=normalizePhone(phone.value);
-  phone.value=n;
-  try{phone.setSelectionRange(n.length,n.length)}catch(e){}
-});
-phone.addEventListener('focus',()=>{
-  if(!phone.value) phone.value='+';
-});
+document.getElementById('eye').onclick=()=>{p.type=p.type==='password'?'text':'password'};
 
-document.getElementById('eye').onclick=()=>{
-  pass.type=pass.type==='password'?'text':'password';
-};
+phone.addEventListener('input',()=>{
+  phone.value=normalizePhone(phone.value);
+  try{phone.setSelectionRange(phone.value.length,phone.value.length)}catch(e){}
+});
 
 document.getElementById('signup').onsubmit=async(e)=>{
   e.preventDefault();
 
   const name=document.getElementById('name').value.trim();
   const whatsapp=normalizePhone(phone.value);
-  const password=pass.value;
+  const password=p.value;
 
   if(!name || whatsapp.length<8 || !password){
     alert('Completa nombre, WhatsApp y contraseña.');
@@ -103,19 +105,23 @@ document.getElementById('signup').onsubmit=async(e)=>{
 
   const salt=makeSalt();
   const passwordHash=await hashPassword(password,salt);
+  const names=splitName(name);
 
-  localStorage.setItem('fsf_user',JSON.stringify({
+  const user={
     name,
+    firstName:names.firstName,
+    lastName:names.lastName,
     whatsapp,
     passwordSalt:salt,
     passwordHash,
     userCreated:true,
     loggedIn:true,
-    rememberMe:true,
     createdAt:new Date().toISOString()
-  }));
+  };
 
-  window.location.replace('/elegir-viaje.html?v=3');
+  localStorage.setItem(KEY,JSON.stringify(user));
+  localStorage.setItem(LEGACY,JSON.stringify(user));
+  location.href='/elegir-viaje.html';
 };
 </script>
 </body>
