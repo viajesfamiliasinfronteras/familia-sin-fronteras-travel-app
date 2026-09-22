@@ -34,20 +34,20 @@ var(--cream);background-size:48px 48px}
     <p class="mini">Ahora necesitamos tus vuelos y algunos datos para poder acompañarte durante el viaje.</p>
   </section>
 </main>
-<script src="/app.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>\n<script src="/supabase-config.js"></script>\n<script src="/app.js"></script>
 <script>
-const s=FSF.requireUser();
-if(s){
-  if(!s.tripId){location.replace('/elegir-viaje.html')}
-  else if(!s.profileComplete){location.replace('/mi-perfil.html')}
-  else{
-    document.getElementById('trip').textContent=FSF.tripLabel(s.tripId);
-    const art=FSF.tripArt(s.tripId);
-    const img=document.getElementById('tripArt');
-    img.src=art;
-    img.alt=FSF.tripLabel(s.tripId);
-  }
-}
+let s=null;
+(async()=>{
+  const user=await FSFCLOUD.getCloudUser();
+  if(!user){location.replace('/login');return}
+  s=await FSFCLOUD.syncCloudState();
+  if(!s?.tripId){location.replace('/elegir-viaje.html');return}
+  if(!s?.profileComplete){location.replace('/mi-perfil.html');return}
+  document.getElementById('trip').textContent=FSF.tripLabel(s.tripId);
+  const img=document.getElementById('tripArt');
+  img.src=FSF.tripArt(s.tripId);
+  img.alt=FSF.tripLabel(s.tripId);
+})();
 document.getElementById('continueBtn').onclick=()=>{
   FSF.writeState({travelDataStarted:true});
   location.href='/datos-viaje.html';
