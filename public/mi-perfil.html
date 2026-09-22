@@ -8,23 +8,23 @@
   <style>
     .profile{
       min-height:100svh;
-      padding:14px;
+      padding:12px;
       position:relative;
       background:
-        linear-gradient(rgba(255,255,255,.82) 2px,transparent 2px),
-        linear-gradient(90deg,rgba(255,255,255,.82) 2px,transparent 2px),
-        var(--mustard);
-      background-size:48px 48px;
+        linear-gradient(rgba(255,248,232,.95) 2px,transparent 2px),
+        linear-gradient(90deg,rgba(255,248,232,.95) 2px,transparent 2px),
+        var(--terracotta);
+      background-size:46px 46px;
     }
     .profile-shell{
       position:relative;
       z-index:2;
       width:100%;
-      background:var(--cream2);
-      border:2.5px solid var(--ink);
-      border-radius:28px;
-      padding:16px 16px 24px;
-      box-shadow:5px 6px 0 rgba(17,23,18,.16);
+      background:var(--cream);
+      border:0;
+      border-radius:30px;
+      padding:14px 14px 22px;
+      box-shadow:none;
     }
     .profile .back-btn{
       width:42px;height:42px;
@@ -58,9 +58,9 @@
       width:84px;
       height:84px;
       margin:0 auto;
-      border:2.5px dashed var(--ink);
+      border:2px dashed rgba(17,23,18,.62);
       border-radius:50%;
-      background:var(--cream);
+      background:rgba(255,255,255,.38);
       display:grid;
       place-items:center;
       overflow:hidden;
@@ -88,10 +88,10 @@
     .chips{display:flex;gap:6px;flex-wrap:wrap}
     .interest-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:5px}
     .interest{
-      min-height:58px;
-      border:1.7px solid #6a7470;
-      border-radius:10px;
-      background:rgba(255,250,235,.75);
+      min-height:56px;
+      border:1.5px solid rgba(17,23,18,.68);
+      border-radius:12px;
+      background:rgba(255,255,255,.36);
       display:flex;
       flex-direction:column;
       align-items:center;
@@ -110,13 +110,15 @@
     .personality{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}
     .personality .chip{padding:7px 5px;font-size:11px;text-align:center}
     .profile .primary{
-      margin-top:8px;
+      margin-top:10px;
       background:var(--olive);
       color:#fff;
+      border-color:var(--olive);
+      box-shadow:none;
     }
     @media(max-width:370px){
-      .profile{padding:10px}
-      .profile-shell{padding:14px 12px 22px}
+      .profile{padding:8px}
+      .profile-shell{padding:12px 11px 20px}
       .profile-copy h1{font-size:44px}
       .interest-grid{grid-template-columns:repeat(4,1fr)}
       .personality{grid-template-columns:repeat(3,1fr)}
