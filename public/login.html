@@ -145,8 +145,10 @@ document.getElementById('loginForm').onsubmit=async(e)=>{
   const currentState=(()=>{try{return JSON.parse(localStorage.getItem('fsf_travel_user_v1')||'{}')}catch(e){return {}}})();
   localStorage.setItem('fsf_travel_user_v1',JSON.stringify({...currentState,...user}));
 
-  const trip=currentState.tripId || localStorage.getItem('fsf_trip');
-  window.location.replace(trip ? '/mi-perfil.html' : '/elegir-viaje.html');
+  const merged={...currentState,...user};
+  if(!merged.tripId){window.location.replace('/elegir-viaje.html');return;}
+  if(!merged.profileComplete){window.location.replace('/mi-perfil.html');return;}
+  window.location.replace('/mi-viaje.html');
 };
 </script>
 </body>
