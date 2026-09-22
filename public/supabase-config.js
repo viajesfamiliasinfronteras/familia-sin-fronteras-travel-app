@@ -11,7 +11,7 @@ function normalizePhone(value){
 async function registerTraveler(name,whatsapp,password){
   const {data,error}=await fsfSupabase.functions.invoke('register-traveler',{
     body:{name,whatsapp:normalizePhone(whatsapp),password},
-    headers:{Authorization:'Bearer '+FSF_SUPABASE_ANON}
+    headers:{Authorization:'Bearer '+FSF_SUPABASE_ANON,apikey:FSF_SUPABASE_ANON}
   });
   if(error){
     let message=error.message||'No pudimos crear la cuenta.';
