@@ -1,1 +1,12 @@
-const CACHE='fsf-v5';const ASSETS=['/','/app.css','/app.js','/manifest.webmanifest'];self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS))));self.addEventListener('fetch',e=>e.respondWith(fetch(e.request).catch(()=>caches.match(e.request))));
+self.addEventListener('install',event=>{self.skipWaiting();});
+self.addEventListener('activate',event=>{
+  event.waitUntil((async()=>{
+    const keys=await caches.keys();
+    await Promise.all(keys.map(key=>caches.delete(key)));
+    await self.clients.claim();
+    await self.registration.unregister();
+  })());
+});
+self.addEventListener('fetch',event=>{
+  event.respondWith(fetch(event.request,{cache:'no-store'}));
+});
