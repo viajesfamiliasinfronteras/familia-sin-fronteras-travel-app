@@ -142,9 +142,11 @@ document.getElementById('loginForm').onsubmit=async(e)=>{
   user.loggedIn=true;
   user.rememberMe=true;
   localStorage.setItem('fsf_user',JSON.stringify(user));
+  const currentState=(()=>{try{return JSON.parse(localStorage.getItem('fsf_travel_user_v1')||'{}')}catch(e){return {}}})();
+  localStorage.setItem('fsf_travel_user_v1',JSON.stringify({...currentState,...user}));
 
-  const trip=localStorage.getItem('fsf_trip');
-  window.location.replace(trip ? '/mi-perfil.html?v=3' : '/elegir-viaje.html?v=3');
+  const trip=currentState.tripId || localStorage.getItem('fsf_trip');
+  window.location.replace(trip ? '/mi-perfil.html' : '/elegir-viaje.html');
 };
 </script>
 </body>
