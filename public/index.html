@@ -106,7 +106,23 @@ body{display:flex;justify-content:center;font-family:Arial,Helvetica,sans-serif}
   .actions{top:54%}
   .stamps{bottom:5%}
 }
-</style>
+.bg,
+.grid,
+.center-blank,
+.block,
+.logo,
+.stamps {
+  pointer-events: none !important;
+}
+
+.actions {
+  z-index: 9999 !important;
+  pointer-events: auto !important;
+}
+
+.actions a {
+  pointer-events: auto !important;
+}</style>
 </head>
 <body>
 <main class="app">
