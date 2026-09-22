@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link rel="stylesheet" href="/app.css">
+<title>Datos de tu viaje</title>
+<style>
+.page{min-height:100svh;padding:12px;background:
+linear-gradient(rgba(255,248,232,.92) 2px,transparent 2px),
+linear-gradient(90deg,rgba(255,248,232,.92) 2px,transparent 2px),
+var(--terracotta);background-size:46px 46px}
+.sheet{background:var(--cream);border-radius:28px;padding:14px 14px 26px;min-height:calc(100svh - 24px)}
+.top{display:flex;align-items:center;gap:10px;margin-bottom:8px}.trip-badge{display:inline-flex;padding:5px 10px;border:1.5px solid var(--ink);border-radius:999px;background:var(--mustard);font:700 11px "Courier Prime",monospace;text-transform:uppercase}
+h1{font-size:44px;margin:8px 0 4px}.intro{margin:0 0 16px;font-size:14px;line-height:1.35}
+.section{border:2px solid var(--ink);border-radius:20px;background:rgba(255,250,235,.72);padding:13px;margin-bottom:12px}.section h2{font-family:"DM Serif Display",serif;font-size:25px;margin:0 0 10px}
+.upload{border:2px dashed rgba(17,23,18,.55);border-radius:16px;background:rgba(255,255,255,.35);min-height:92px;display:grid;place-items:center;text-align:center;padding:10px;margin-bottom:10px;cursor:pointer}.upload input{display:none}.upload strong{display:block;font-size:14px}.upload small{display:block;margin-top:3px;font-size:11px}.file-name{font-size:11px;font-weight:800;margin-top:6px;word-break:break-all}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}.wrap{display:grid;gap:5px}.wrap label{font-size:12px;font-weight:800}.field{height:50px;border-radius:13px;font-size:14px}.full{grid-column:1/-1}.chips{display:flex;gap:6px;flex-wrap:wrap}.choice{border:1.7px solid var(--ink);border-radius:999px;padding:8px 11px;background:rgba(255,255,255,.3);font-size:12px;font-weight:700}.choice.selected{background:var(--terracotta);color:#fff}.hint{font:700 11px "Courier Prime",monospace;line-height:1.35;margin:7px 0 0}.page .primary{margin-top:4px;background:var(--olive);color:#fff;border-color:var(--olive)}
+</style>
+</head>
+<body>
+<main class="app page">
+<section class="sheet">
+  <div class="top">
+    <a class="back-btn" href="/mi-viaje.html">‹</a>
+    <div class="trip-badge" id="tripBadge"></div>
+  </div>
+  <h1 class="retro-title">Datos de tu viaje</h1>
+  <p class="intro">Estos datos nos permiten saber cuándo sales, cuándo llegas y acompañarte durante cada etapa del viaje.</p>
+
+  <form id="travelForm">
+    <section class="section">
+      <h2>✈ Vuelo de ida</h2>
+      <label class="upload" for="outboundFile">
+        <div><strong>Sube una captura o tu e-ticket</strong><small>Imagen o PDF</small><div class="file-name" id="outboundName"></div></div>
+        <input id="outboundFile" type="file" accept="image/*,.pdf,application/pdf">
+      </label>
+      <div class="grid2">
+        <div class="wrap"><label>Aerolínea</label><input class="field" id="outboundAirline" placeholder="Ej. LATAM"></div>
+        <div class="wrap"><label>N° de vuelo</label><input class="field" id="outboundFlight" placeholder="Ej. LA123"></div>
+        <div class="wrap"><label>Fecha de salida</label><input class="field" id="outboundDate" type="date"></div>
+        <div class="wrap"><label>Hora de salida</label><input class="field" id="outboundTime" type="time"></div>
+        <div class="wrap"><label>Sales desde</label><input class="field" id="outboundFrom" placeholder="Ciudad / aeropuerto"></div>
+        <div class="wrap"><label>Llegas a</label><input class="field" id="outboundTo" placeholder="Ciudad / aeropuerto"></div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>↩ Vuelo de regreso</h2>
+      <label class="upload" for="returnFile">
+        <div><strong>Sube una captura o tu e-ticket</strong><small>Imagen o PDF</small><div class="file-name" id="returnName"></div></div>
+        <input id="returnFile" type="file" accept="image/*,.pdf,application/pdf">
+      </label>
+      <div class="grid2">
+        <div class="wrap"><label>Aerolínea</label><input class="field" id="returnAirline" placeholder="Ej. Iberia"></div>
+        <div class="wrap"><label>N° de vuelo</label><input class="field" id="returnFlight" placeholder="Ej. IB456"></div>
+        <div class="wrap"><label>Fecha de regreso</label><input class="field" id="returnDate" type="date"></div>
+        <div class="wrap"><label>Hora de salida</label><input class="field" id="returnTime" type="time"></div>
+        <div class="wrap"><label>Sales desde</label><input class="field" id="returnFrom" placeholder="Ciudad / aeropuerto"></div>
+        <div class="wrap"><label>Llegas a</label><input class="field" id="returnTo" placeholder="Ciudad / aeropuerto"></div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>Detalles extra</h2>
+      <p class="small-label">¿Llegas antes de que comience el viaje?</p>
+      <div class="chips" data-single="early"><button type="button" class="choice">Sí</button><button type="button" class="choice">No</button></div>
+      <div class="wrap" style="margin-top:9px"><label>Si corresponde, fecha de llegada anticipada</label><input class="field" id="earlyDate" type="date"></div>
+
+      <p class="small-label" style="margin-top:12px">¿Te quedas después de que termina el viaje?</p>
+      <div class="chips" data-single="late"><button type="button" class="choice">Sí</button><button type="button" class="choice">No</button></div>
+      <div class="wrap" style="margin-top:9px"><label>Si corresponde, fecha de salida posterior</label><input class="field" id="lateDate" type="date"></div>
+
+      <p class="small-label" style="margin-top:12px">Traslado al llegar</p>
+      <div class="chips" data-single="transfer"><button type="button" class="choice">Grupo</button><button type="button" class="choice">Privado</button><button type="button" class="choice">Por mi cuenta</button><button type="button" class="choice">Aún no sé</button></div>
+      <p class="hint">Más adelante podremos usar esto para avisarte check-in, llegada al aeropuerto, puerta de embarque, llegada a destino y encuentro con el grupo.</p>
+    </section>
+
+    <button class="primary" type="submit">GUARDAR DATOS</button>
+  </form>
+</section>
+</main>
+<script src="/app.js"></script>
+<script>
+const s=FSF.requireUser();
+if(!s?.tripId){location.replace('/elegir-viaje.html')}
+else if(!s?.profileComplete){location.replace('/mi-perfil.html')}
+else{
+  tripBadge.textContent=FSF.tripLabel(s.tripId);
+  const d=s.travelData||{};
+  ['outboundAirline','outboundFlight','outboundDate','outboundTime','outboundFrom','outboundTo','returnAirline','returnFlight','returnDate','returnTime','returnFrom','returnTo','earlyDate','lateDate'].forEach(id=>{if(d[id])document.getElementById(id).value=d[id]});
+  setupSingle('early',d.early);
+  setupSingle('late',d.late);
+  setupSingle('transfer',d.transfer);
+  outboundName.textContent=d.outboundFileName||'';
+  returnName.textContent=d.returnFileName||'';
+}
+function setupSingle(key,current){
+  const box=document.querySelector('[data-single="'+key+'"]');
+  box.querySelectorAll('button').forEach(b=>{
+    if(b.textContent.trim()===current)b.classList.add('selected');
+    b.onclick=()=>{box.querySelectorAll('button').forEach(x=>x.classList.remove('selected'));b.classList.add('selected')}
+  });
+}
+function one(key){return document.querySelector('[data-single="'+key+'"] .selected')?.textContent.trim()||''}
+outboundFile.onchange=()=>{outboundName.textContent=outboundFile.files?.[0]?.name||''}
+returnFile.onchange=()=>{returnName.textContent=returnFile.files?.[0]?.name||''}
+travelForm.onsubmit=e=>{
+  e.preventDefault();
+  const ids=['outboundAirline','outboundFlight','outboundDate','outboundTime','outboundFrom','outboundTo','returnAirline','returnFlight','returnDate','returnTime','returnFrom','returnTo','earlyDate','lateDate'];
+  const data={};
+  ids.forEach(id=>data[id]=document.getElementById(id).value.trim());
+  data.early=one('early');data.late=one('late');data.transfer=one('transfer');
+  data.outboundFileName=outboundFile.files?.[0]?.name||outboundName.textContent||'';
+  data.returnFileName=returnFile.files?.[0]?.name||returnName.textContent||'';
+  FSF.writeState({travelData:data,travelDataStarted:true,travelDataComplete:true});
+  alert('Datos guardados ✓');
+};
+</script>
+</body>
+</html>
