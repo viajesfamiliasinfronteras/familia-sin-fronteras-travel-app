@@ -1,5 +1,5 @@
 const FSF_SUPABASE_URL='https://xqmuopqeohwqvyyrnflv.supabase.co';
-const FSF_SUPABASE_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhxbXVvcHFlb2h3cXZ5eXJuZmx2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTAwMzY3NjYsImV4cCI6MjEwNTYxMjc2Nn0.zVDWqA19nlxyllwLfuUaZeTFUSnBtqffEqH9PHuytTw';
+const FSF_SUPABASE_ANON='sb_publishable_YIe3rCOYIzYZKRYx2zuOGw_KJyop0-i';
 const fsfSupabase=window.supabase.createClient(FSF_SUPABASE_URL,FSF_SUPABASE_ANON,{
   auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}
 });
