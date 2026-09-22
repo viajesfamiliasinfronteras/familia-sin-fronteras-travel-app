@@ -1,0 +1,8 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><link rel="stylesheet" href="/app.css"><title>Mi viaje</title><style>
+.home{min-height:100svh;padding:28px 22px 110px;position:relative}
+.card{position:relative;z-index:2;margin-top:92px;background:rgba(255,250,235,.88);border:2.5px solid var(--ink);border-radius:24px;padding:24px;text-align:center}
+.card h1{font-size:46px;margin:0 0 12px}.card p{margin:8px 0}.trip{font-weight:800;font-size:21px}
+.note{font-family:"Courier New",monospace;font-weight:700;font-size:14px}
+</style></head><body><main class="app home"><div class="grid-bg"></div><div class="card"><h1 class="retro-title">Tu viaje</h1><p class="trip" id="trip"></p><p class="note">Tu grupo y tu perfil ya quedaron guardados.</p></div><div class="bottom-sun"></div><div class="bottom-wave"></div></main><script src="/app.js"></script><script>
+const s=FSF.requireUser();if(s){if(!s.tripId){location.replace('/elegir-viaje.html')}else if(!s.profileComplete){location.replace('/mi-perfil.html')}else{document.getElementById('trip').textContent=FSF.tripLabel(s.tripId)}}
+</script></body></html>
