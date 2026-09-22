@@ -9,7 +9,8 @@ const routes={
   '/crear-cuenta':'/crear-cuenta.html',
   '/login':'/login.html',
   '/elegir-viaje':'/elegir-viaje.html',
-  '/mi-perfil':'/mi-perfil.html'
+  '/mi-perfil':'/mi-perfil.html',
+  '/mi-viaje':'/mi-viaje.html'
 };
 
 http.createServer((req,res)=>{
