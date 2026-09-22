@@ -16,10 +16,10 @@ const TRIPS={
   'china-abr-2027':'China · Abril 2027'
 };
 const TRIP_ART={
-  'japon-oct-2026':'/assets/trip-japon-oct-2026.svg',
-  'japon-ene-2027':'/assets/trip-japon-ene-2027.svg',
+  'japon-oct-2026':'/assets/viajes/japon-oct-2026.webp',
+  'japon-ene-2027':'/assets/viajes/japon-ene-2027.webp',
   'islandia-feb-2027':'/assets/trip-islandia-feb-2027.svg',
-  'china-abr-2027':'/assets/trip-china-abr-2027.svg'
+  'china-abr-2027':'/assets/viajes/china-abr-2027.webp'
 };
 function tripLabel(id){return TRIPS[id]||id||''}
 function tripArt(id){return TRIP_ART[id]||''}
