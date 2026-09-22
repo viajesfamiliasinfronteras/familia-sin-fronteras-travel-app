@@ -91,9 +91,9 @@ h1{font-size:44px;margin:8px 0 4px}.intro{margin:0 0 16px;font-size:14px;line-he
   </form>
 </section>
 </main>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>\n<script src="/supabase-config.js"></script>\n<script src="/app.js"></script>
+<script src="/app.js"></script>
 <script>
-let state=null;
+let state=FSF.requireUser();
 function setupSingle(key,current){
   const box=document.querySelector('[data-single="'+key+'"]');
   if(!box)return;
@@ -103,75 +103,59 @@ function setupSingle(key,current){
   });
 }
 function one(key){return document.querySelector('[data-single="'+key+'"] .selected')?.textContent.trim()||''}
-function transferCode(v){
-  return ({'Grupo':'group','Privado':'private','Por mi cuenta':'self','Aún no sé':'unknown'})[v]||'unknown';
-}
-function setFileLabel(input,label){
-  input.onchange=()=>{label.textContent=input.files?.[0]?.name||''};
-}
-setFileLabel(passportFile,passportName); setFileLabel(outboundFile,outboundName); setFileLabel(returnFile,returnName);
+function setFileLabel(input,label){input.onchange=()=>{label.textContent=input.files?.[0]?.name||''}}
+setFileLabel(passportFile,passportName);setFileLabel(outboundFile,outboundName);setFileLabel(returnFile,returnName);
 
 (async()=>{
-  const user=await FSFCLOUD.getCloudUser();
-  if(!user){location.replace('/login');return}
-  state=await FSFCLOUD.syncCloudState();
-  if(!state?.tripId){location.replace('/elegir-viaje.html');return}
-  if(!state?.profileComplete){location.replace('/mi-perfil.html');return}
+  if(!state)return;
+  if(!state.tripId){location.replace('/elegir-viaje.html');return}
+  if(!state.profileComplete){location.replace('/mi-perfil.html');return}
   tripBadge.textContent=FSF.tripLabel(state.tripId);
-
-  const cloud=await FSFCLOUD.loadTravelCloud(state.tripId);
-  const travel=cloud?.travel||{};
-  const outbound=(cloud?.flights||[]).find(x=>x.direction==='outbound')||{};
-  const ret=(cloud?.flights||[]).find(x=>x.direction==='return')||{};
-  const docs=cloud?.documents||[];
-
-  const values={
-    outboundAirline:outbound.airline||'',outboundFlight:outbound.flight_number||'',outboundDate:outbound.departure_date||'',
-    outboundTime:outbound.departure_time?.slice?.(0,5)||'',outboundFrom:outbound.departure_airport||'',outboundTo:outbound.arrival_airport||'',
-    returnAirline:ret.airline||'',returnFlight:ret.flight_number||'',returnDate:ret.departure_date||'',
-    returnTime:ret.departure_time?.slice?.(0,5)||'',returnFrom:ret.departure_airport||'',returnTo:ret.arrival_airport||'',
-    earlyDate:travel.extra_arrival_date||'',lateDate:travel.extra_departure_date||'',comments:travel.comments||''
-  };
-  Object.entries(values).forEach(([id,v])=>{const el=document.getElementById(id);if(el)el.value=v});
-
-  setupSingle('early',travel.extra_arrival_before===true?'Sí':travel.extra_arrival_before===false?'No':'');
-  setupSingle('late',travel.extra_departure_after===true?'Sí':travel.extra_departure_after===false?'No':'');
-  const transferLabel=({group:'Grupo',private:'Privado',self:'Por mi cuenta',unknown:'Aún no sé'})[travel.arrival_transfer]||'';
-  setupSingle('transfer',transferLabel);
-
-  const passDoc=docs.find(x=>x.document_type==='passport');
-  const outDoc=docs.find(x=>x.document_type==='outbound_ticket');
-  const retDoc=docs.find(x=>x.document_type==='return_ticket');
-  passportName.textContent=passDoc?.original_name||'';
-  outboundName.textContent=outDoc?.original_name||'';
-  returnName.textContent=retDoc?.original_name||'';
+  const travel=state.travelData||{};
+  const ids=['outboundAirline','outboundFlight','outboundDate','outboundTime','outboundFrom','outboundTo','returnAirline','returnFlight','returnDate','returnTime','returnFrom','returnTo','earlyDate','lateDate','comments'];
+  ids.forEach(id=>{if(travel[id]!==undefined&&document.getElementById(id))document.getElementById(id).value=travel[id]||''});
+  setupSingle('early',travel.early||'');setupSingle('late',travel.late||'');setupSingle('transfer',travel.transfer||'');
+  const prefix=state.whatsapp+':'+state.tripId+':';
+  const [pass,out,ret]=await Promise.all([
+    FSF.getLocalFile(prefix+'passport'),
+    FSF.getLocalFile(prefix+'outbound_ticket'),
+    FSF.getLocalFile(prefix+'return_ticket')
+  ]);
+  passportName.textContent=pass?.name||travel.passportFileName||'';
+  outboundName.textContent=out?.name||travel.outboundFileName||'';
+  returnName.textContent=ret?.name||travel.returnFileName||'';
 })();
 
 travelForm.onsubmit=async e=>{
   e.preventDefault();
   if(!state?.tripId)return;
-  saveBtn.disabled=true; saveBtn.textContent='GUARDANDO...';
-  const data={
-    tripId:state.tripId,
-    outboundAirline:outboundAirline.value.trim(),outboundFlight:outboundFlight.value.trim(),
-    outboundDate:outboundDate.value,outboundTime:outboundTime.value,outboundFrom:outboundFrom.value.trim(),outboundTo:outboundTo.value.trim(),
-    returnAirline:returnAirline.value.trim(),returnFlight:returnFlight.value.trim(),
-    returnDate:returnDate.value,returnTime:returnTime.value,returnFrom:returnFrom.value.trim(),returnTo:returnTo.value.trim(),
-    early:one('early'),earlyDate:earlyDate.value,late:one('late'),lateDate:lateDate.value,
-    transferMap:transferCode(one('transfer')),comments:comments.value.trim()
-  };
+  saveBtn.disabled=true;saveBtn.textContent='GUARDANDO...';
   try{
-    await FSFCLOUD.saveTravelCloud(data,{
-      passport:passportFile.files?.[0]||null,
-      outbound_ticket:outboundFile.files?.[0]||null,
-      return_ticket:returnFile.files?.[0]||null
-    });
-    FSF.writeState({travelData:data,travelDataStarted:true,travelDataComplete:true});
+    const prefix=state.whatsapp+':'+state.tripId+':';
+    const pass=passportFile.files?.[0]||null,out=outboundFile.files?.[0]||null,ret=returnFile.files?.[0]||null;
+    await Promise.all([
+      pass?FSF.saveLocalFile(prefix+'passport',pass):Promise.resolve(),
+      out?FSF.saveLocalFile(prefix+'outbound_ticket',out):Promise.resolve(),
+      ret?FSF.saveLocalFile(prefix+'return_ticket',ret):Promise.resolve()
+    ]);
+    const data={
+      tripId:state.tripId,
+      outboundAirline:outboundAirline.value.trim(),outboundFlight:outboundFlight.value.trim(),
+      outboundDate:outboundDate.value,outboundTime:outboundTime.value,outboundFrom:outboundFrom.value.trim(),outboundTo:outboundTo.value.trim(),
+      returnAirline:returnAirline.value.trim(),returnFlight:returnFlight.value.trim(),
+      returnDate:returnDate.value,returnTime:returnTime.value,returnFrom:returnFrom.value.trim(),returnTo:returnTo.value.trim(),
+      early:one('early'),earlyDate:earlyDate.value,late:one('late'),lateDate:lateDate.value,
+      transfer:one('transfer'),comments:comments.value.trim(),
+      passportFileName:pass?.name||passportName.textContent||'',
+      outboundFileName:out?.name||outboundName.textContent||'',
+      returnFileName:ret?.name||returnName.textContent||''
+    };
+    state=FSF.writeState({travelData:data,travelDataStarted:true,travelDataComplete:true});
     alert('Datos y documentos guardados ✓');
   }catch(err){
     alert('No pudimos guardar todo. '+(err.message||''));
   }finally{
-    saveBtn.disabled=false; saveBtn.textContent='GUARDAR DATOS';
+    saveBtn.disabled=false;saveBtn.textContent='GUARDAR DATOS';
   }
 };
 </script>
