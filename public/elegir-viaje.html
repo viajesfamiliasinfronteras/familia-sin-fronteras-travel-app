@@ -6,7 +6,7 @@ function chooseTrip(id){
   document.querySelectorAll('.trip-card').forEach(x=>x.classList.toggle('selected',x.dataset.id===selected));
   FSF.writeState({tripId:selected,tripJoinedAt:s?.tripJoinedAt||new Date().toISOString()});
   localStorage.setItem('fsf_trip',selected);
-  setTimeout(()=>location.href='/mi-perfil.html',120);
+  location.href='/mi-perfil.html';
 }
 document.querySelectorAll('.trip-card').forEach(c=>{
   if(c.dataset.id===selected)c.classList.add('selected');

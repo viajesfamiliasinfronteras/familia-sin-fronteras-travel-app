@@ -30,6 +30,13 @@ h1{font-size:44px;margin:8px 0 4px}.intro{margin:0 0 16px;font-size:14px;line-he
 
   <form id="travelForm">
     <section class="section">
+      <h2>🛂 Documento de viaje</h2>
+      <label class="upload" for="passportFile">
+        <div><strong>Sube foto de tu pasaporte</strong><small>Imagen o PDF</small><div class="file-name" id="passportName"></div></div>
+        <input id="passportFile" type="file" accept="image/*,.pdf,application/pdf">
+      </label>
+    </section>
+    <section class="section">
       <h2>✈ Vuelo de ida</h2>
       <label class="upload" for="outboundFile">
         <div><strong>Sube una captura o tu e-ticket</strong><small>Imagen o PDF</small><div class="file-name" id="outboundName"></div></div>
@@ -76,45 +83,80 @@ h1{font-size:44px;margin:8px 0 4px}.intro{margin:0 0 16px;font-size:14px;line-he
       <p class="hint">Más adelante podremos usar esto para avisarte check-in, llegada al aeropuerto, puerta de embarque, llegada a destino y encuentro con el grupo.</p>
     </section>
 
-    <button class="primary" type="submit">GUARDAR DATOS</button>
+    <section class="section">
+      <h2>Comentarios</h2>
+      <textarea class="field" id="comments" placeholder="Algo que debamos saber..." style="height:92px;padding-top:12px"></textarea>
+    </section>
+    <button class="primary" id="saveBtn" type="submit">GUARDAR DATOS</button>
   </form>
 </section>
 </main>
 <script src="/app.js"></script>
 <script>
-const s=FSF.requireUser();
-if(!s?.tripId){location.replace('/elegir-viaje.html')}
-else if(!s?.profileComplete){location.replace('/mi-perfil.html')}
-else{
-  tripBadge.textContent=FSF.tripLabel(s.tripId);
-  const d=s.travelData||{};
-  ['outboundAirline','outboundFlight','outboundDate','outboundTime','outboundFrom','outboundTo','returnAirline','returnFlight','returnDate','returnTime','returnFrom','returnTo','earlyDate','lateDate'].forEach(id=>{if(d[id])document.getElementById(id).value=d[id]});
-  setupSingle('early',d.early);
-  setupSingle('late',d.late);
-  setupSingle('transfer',d.transfer);
-  outboundName.textContent=d.outboundFileName||'';
-  returnName.textContent=d.returnFileName||'';
-}
+let state=FSF.requireUser();
 function setupSingle(key,current){
   const box=document.querySelector('[data-single="'+key+'"]');
+  if(!box)return;
   box.querySelectorAll('button').forEach(b=>{
     if(b.textContent.trim()===current)b.classList.add('selected');
     b.onclick=()=>{box.querySelectorAll('button').forEach(x=>x.classList.remove('selected'));b.classList.add('selected')}
   });
 }
 function one(key){return document.querySelector('[data-single="'+key+'"] .selected')?.textContent.trim()||''}
-outboundFile.onchange=()=>{outboundName.textContent=outboundFile.files?.[0]?.name||''}
-returnFile.onchange=()=>{returnName.textContent=returnFile.files?.[0]?.name||''}
-travelForm.onsubmit=e=>{
+function setFileLabel(input,label){input.onchange=()=>{label.textContent=input.files?.[0]?.name||''}}
+setFileLabel(passportFile,passportName);setFileLabel(outboundFile,outboundName);setFileLabel(returnFile,returnName);
+
+(async()=>{
+  if(!state)return;
+  if(!state.tripId){location.replace('/elegir-viaje.html');return}
+  if(!state.profileComplete){location.replace('/mi-perfil.html');return}
+  tripBadge.textContent=FSF.tripLabel(state.tripId);
+  const travel=state.travelData||{};
+  const ids=['outboundAirline','outboundFlight','outboundDate','outboundTime','outboundFrom','outboundTo','returnAirline','returnFlight','returnDate','returnTime','returnFrom','returnTo','earlyDate','lateDate','comments'];
+  ids.forEach(id=>{if(travel[id]!==undefined&&document.getElementById(id))document.getElementById(id).value=travel[id]||''});
+  setupSingle('early',travel.early||'');setupSingle('late',travel.late||'');setupSingle('transfer',travel.transfer||'');
+  const prefix=state.whatsapp+':'+state.tripId+':';
+  const [pass,out,ret]=await Promise.all([
+    FSF.getLocalFile(prefix+'passport'),
+    FSF.getLocalFile(prefix+'outbound_ticket'),
+    FSF.getLocalFile(prefix+'return_ticket')
+  ]);
+  passportName.textContent=pass?.name||travel.passportFileName||'';
+  outboundName.textContent=out?.name||travel.outboundFileName||'';
+  returnName.textContent=ret?.name||travel.returnFileName||'';
+})();
+
+travelForm.onsubmit=async e=>{
   e.preventDefault();
-  const ids=['outboundAirline','outboundFlight','outboundDate','outboundTime','outboundFrom','outboundTo','returnAirline','returnFlight','returnDate','returnTime','returnFrom','returnTo','earlyDate','lateDate'];
-  const data={};
-  ids.forEach(id=>data[id]=document.getElementById(id).value.trim());
-  data.early=one('early');data.late=one('late');data.transfer=one('transfer');
-  data.outboundFileName=outboundFile.files?.[0]?.name||outboundName.textContent||'';
-  data.returnFileName=returnFile.files?.[0]?.name||returnName.textContent||'';
-  FSF.writeState({travelData:data,travelDataStarted:true,travelDataComplete:true});
-  alert('Datos guardados ✓');
+  if(!state?.tripId)return;
+  saveBtn.disabled=true;saveBtn.textContent='GUARDANDO...';
+  try{
+    const prefix=state.whatsapp+':'+state.tripId+':';
+    const pass=passportFile.files?.[0]||null,out=outboundFile.files?.[0]||null,ret=returnFile.files?.[0]||null;
+    await Promise.all([
+      pass?FSF.saveLocalFile(prefix+'passport',pass):Promise.resolve(),
+      out?FSF.saveLocalFile(prefix+'outbound_ticket',out):Promise.resolve(),
+      ret?FSF.saveLocalFile(prefix+'return_ticket',ret):Promise.resolve()
+    ]);
+    const data={
+      tripId:state.tripId,
+      outboundAirline:outboundAirline.value.trim(),outboundFlight:outboundFlight.value.trim(),
+      outboundDate:outboundDate.value,outboundTime:outboundTime.value,outboundFrom:outboundFrom.value.trim(),outboundTo:outboundTo.value.trim(),
+      returnAirline:returnAirline.value.trim(),returnFlight:returnFlight.value.trim(),
+      returnDate:returnDate.value,returnTime:returnTime.value,returnFrom:returnFrom.value.trim(),returnTo:returnTo.value.trim(),
+      early:one('early'),earlyDate:earlyDate.value,late:one('late'),lateDate:lateDate.value,
+      transfer:one('transfer'),comments:comments.value.trim(),
+      passportFileName:pass?.name||passportName.textContent||'',
+      outboundFileName:out?.name||outboundName.textContent||'',
+      returnFileName:ret?.name||returnName.textContent||''
+    };
+    state=FSF.writeState({travelData:data,travelDataStarted:true,travelDataComplete:true});
+    alert('Datos y documentos guardados ✓');
+  }catch(err){
+    alert('No pudimos guardar todo. '+(err.message||''));
+  }finally{
+    saveBtn.disabled=false;saveBtn.textContent='GUARDAR DATOS';
+  }
 };
 </script>
 </body>

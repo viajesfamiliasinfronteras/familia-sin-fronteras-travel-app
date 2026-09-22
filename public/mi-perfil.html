@@ -239,105 +239,59 @@
 
 <script src="/app.js"></script>
 <script>
-  const s=FSF.requireUser();
-
-  if(s?.profileComplete && !new URLSearchParams(location.search).has('edit')){
-    location.replace('/mi-viaje.html');
+let state=FSF.requireUser();
+function setupSingle(key,current){
+  const box=document.querySelector('[data-single="'+key+'"]');
+  box.querySelectorAll('button').forEach(b=>{
+    if(b.textContent.trim()===current)b.classList.add('selected');
+    b.onclick=()=>{box.querySelectorAll('button').forEach(x=>x.classList.remove('selected'));b.classList.add('selected')};
+  });
+}
+function setupMulti(key,current){
+  const box=document.querySelector('[data-multi="'+key+'"]');
+  box.querySelectorAll('button').forEach(b=>{
+    if((current||[]).includes(b.textContent.trim()))b.classList.add('selected');
+    b.onclick=()=>b.classList.toggle('selected');
+  });
+}
+(async()=>{
+  if(!state)return;
+  if(state.profileComplete&&!new URLSearchParams(location.search).has('edit')){location.replace('/mi-viaje.html');return}
+  if(!state.tripId){location.replace('/elegir-viaje.html');return}
+  tripBadge.textContent=FSF.tripLabel(state.tripId);
+  firstName.value=state.firstName||''; lastName.value=state.lastName||'';
+  nationality.value=state.nationality||''; about.value=state.about||'';
+  setupSingle('age',state.age); setupSingle('travelWith',state.travelWith);
+  setupMulti('interests',state.interests); setupMulti('personality',state.personality);
+  const saved=await FSF.getLocalFile('profile:'+state.whatsapp);
+  if(saved?.blob){
+    const url=URL.createObjectURL(saved.blob);
+    photoPreview.src=url;photoPreview.style.display='block';photoPlaceholder.style.display='none';
   }
-
-  if(s){
-    document.getElementById('tripBadge').textContent=FSF.tripLabel(s.tripId);
-    firstName.value=s.firstName||'';
-    lastName.value=s.lastName||'';
-    nationality.value=s.nationality||'';
-    about.value=s.about||'';
-  }
-
-  function setupSingle(key){
-    const box=document.querySelector('[data-single="'+key+'"]');
-    const current=FSF.readState()[key];
-    box.querySelectorAll('button').forEach(b=>{
-      if(b.textContent===current)b.classList.add('selected');
-      b.onclick=()=>{
-        box.querySelectorAll('button').forEach(x=>x.classList.remove('selected'));
-        b.classList.add('selected');
-      };
-    });
-  }
-
-  function setupMulti(key){
-    const box=document.querySelector('[data-multi="'+key+'"]');
-    const current=FSF.readState()[key]||[];
-    box.querySelectorAll('button').forEach(b=>{
-      if(current.includes(b.textContent.trim()))b.classList.add('selected');
-      b.onclick=()=>b.classList.toggle('selected');
-    });
-  }
-
-  setupSingle('age');
-  setupSingle('travelWith');
-  setupMulti('interests');
-  setupMulti('personality');
-
-  const photoInput=document.getElementById('profilePhoto');
-  const photoPreview=document.getElementById('photoPreview');
-  const photoPlaceholder=document.getElementById('photoPlaceholder');
-
-  if(s?.photoDataUrl){
-    photoPreview.src=s.photoDataUrl;
-    photoPreview.style.display='block';
-    photoPlaceholder.style.display='none';
-  }
-
-  photoInput.onchange=()=>{
-    const file=photoInput.files?.[0];
-    if(!file)return;
-
-    if(file.size>3*1024*1024){
-      alert('La foto debe pesar menos de 3 MB.');
-      photoInput.value='';
-      return;
-    }
-
-    const reader=new FileReader();
-    reader.onload=()=>{
-      photoPreview.src=String(reader.result||'');
-      photoPreview.style.display='block';
-      photoPlaceholder.style.display='none';
-    };
-    reader.readAsDataURL(file);
+})();
+profilePhoto.onchange=()=>{
+  const file=profilePhoto.files?.[0]; if(!file)return;
+  const reader=new FileReader();
+  reader.onload=()=>{photoPreview.src=reader.result;photoPreview.style.display='block';photoPlaceholder.style.display='none'};
+  reader.readAsDataURL(file);
+};
+profileForm.onsubmit=async e=>{
+  e.preventDefault();
+  const one=k=>document.querySelector('[data-single="'+k+'"] .selected')?.textContent.trim()||'';
+  const many=k=>[...document.querySelectorAll('[data-multi="'+k+'"] .selected')].map(x=>x.textContent.trim());
+  const existing=await FSF.getLocalFile('profile:'+state.whatsapp);
+  const newPhoto=profilePhoto.files?.[0]||null;
+  if(!newPhoto&&!existing?.blob){alert('Sube una foto de perfil.');return}
+  const btn=e.submitter;btn.disabled=true;btn.textContent='GUARDANDO...';
+  if(newPhoto)await FSF.saveLocalFile('profile:'+state.whatsapp,newPhoto);
+  const payload={
+    firstName:firstName.value.trim(),lastName:lastName.value.trim(),nationality:nationality.value.trim(),
+    age:one('age'),travelWith:one('travelWith'),interests:many('interests'),personality:many('personality'),
+    about:about.value.trim(),tripId:state.tripId,profileComplete:true,profileCreatedAt:state.profileCreatedAt||new Date().toISOString()
   };
-
-  profileForm.onsubmit=e=>{
-    e.preventDefault();
-
-    const one=k=>document.querySelector('[data-single="'+k+'"] .selected')?.textContent.trim()||'';
-    const many=k=>[...document.querySelectorAll('[data-multi="'+k+'"] .selected')].map(x=>x.textContent.trim());
-    const photoDataUrl=photoPreview.src && photoPreview.style.display==='block'
-      ? photoPreview.src
-      : (s?.photoDataUrl||'');
-
-    if(!photoDataUrl){
-      alert('Sube una foto de perfil.');
-      return;
-    }
-
-    FSF.writeState({
-      firstName:firstName.value.trim(),
-      lastName:lastName.value.trim(),
-      nationality:nationality.value.trim(),
-      age:one('age'),
-      travelWith:one('travelWith'),
-      interests:many('interests'),
-      personality:many('personality'),
-      about:about.value.trim(),
-      photoDataUrl,
-      profileComplete:true,
-      profileCreatedAt:s?.profileCreatedAt||new Date().toISOString()
-    });
-
-    location.href='/mi-viaje.html';
-  };
+  state=FSF.writeState(payload);
+  location.href='/mi-viaje.html';
+};
 </script>
 </body>
 </html>

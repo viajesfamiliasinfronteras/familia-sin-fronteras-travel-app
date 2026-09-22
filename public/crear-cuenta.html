@@ -7,29 +7,15 @@
 <link rel="stylesheet" href="/styles.css">
 <style>
 .artboard{aspect-ratio:572/1168}
-.icon{
-  position:absolute;top:14px;width:44px;height:44px;border:2.5px solid #151515;
-  border-radius:15px;background:#f4eadb;display:grid;place-items:center;font-size:21px;font-weight:700
-}
+.icon{position:absolute;top:14px;width:44px;height:44px;border:2.5px solid #151515;border-radius:15px;background:#f4eadb;display:grid;place-items:center;font-size:21px;font-weight:700}
 .back{left:14px}.menu{right:14px}
 .form{position:absolute;top:50.3%;left:6%;right:6%;display:grid;gap:12px}
-h1{
-  margin:0 0 8px;text-align:center;font-family:Georgia,"Times New Roman",serif;
-  font-size:clamp(29px,8vw,36px);line-height:1;font-weight:900
-}
+h1{margin:0 0 8px;text-align:center;font-family:Georgia,"Times New Roman",serif;font-size:clamp(29px,8vw,36px);line-height:1;font-weight:900}
 .field{position:relative}
-input{
-  width:100%;height:56px;border:3px solid #151515;border-radius:18px;background:#f4eadb;
-  padding:0 18px;font-size:16px;outline:none
-}
-.eye{
-  position:absolute;right:8px;top:50%;transform:translateY(-50%);
-  border:0;background:transparent;width:40px;height:40px;font-size:19px
-}
-.continue{
-  height:56px;border:3px solid #151515;border-radius:18px;background:#dc6a40;
-  color:#151515;font-size:17px;font-weight:900
-}
+input{width:100%;height:56px;border:3px solid #151515;border-radius:18px;background:#f4eadb;padding:0 18px;font-size:16px;outline:none}
+.eye{position:absolute;right:8px;top:50%;transform:translateY(-50%);border:0;background:transparent;width:40px;height:40px;font-size:19px}
+.continue{height:56px;border:3px solid #151515;border-radius:18px;background:#dc6a40;color:#151515;font-size:17px;font-weight:900}
+.status{min-height:18px;text-align:center;font-size:12px;font-weight:800}
 </style>
 </head>
 <body>
@@ -47,80 +33,29 @@ input{
           <input id="password" type="password" placeholder="Contraseña" autocomplete="new-password">
           <button type="button" class="eye" id="eye" aria-label="Mostrar contraseña">◉</button>
         </div>
-        <button class="continue" type="submit">CONTINUAR</button>
+        <div class="status" id="status"></div>
+        <button class="continue" id="submitBtn" type="submit">CONTINUAR</button>
       </form>
     </div>
   </main>
 </div>
+<script src="/app.js"></script>
 <script>
-const KEY='fsf_travel_user_v1';
-const LEGACY='fsf_user';
-
-function normalizePhone(value){
-  const digits=String(value||'').replace(/\D/g,'');
-  return digits ? '+'+digits : '+';
-}
-function splitName(full){
-  const parts=String(full||'').trim().split(/\s+/).filter(Boolean);
-  if(parts.length<=1) return {firstName:parts[0]||'',lastName:''};
-  return {firstName:parts.slice(0,-1).join(' '),lastName:parts[parts.length-1]};
-}
-async function hashPassword(password,salt){
-  const data=new TextEncoder().encode(salt+'::'+password);
-  const digest=await crypto.subtle.digest('SHA-256',data);
-  return Array.from(new Uint8Array(digest)).map(b=>b.toString(16).padStart(2,'0')).join('');
-}
-function makeSalt(){
-  if(crypto.randomUUID) return crypto.randomUUID();
-  const arr=new Uint32Array(4);
-  crypto.getRandomValues(arr);
-  return Array.from(arr).join('-');
-}
-
 const p=document.getElementById('password');
 const phone=document.getElementById('whatsapp');
-
+const status=document.getElementById('status');
+const q=new URLSearchParams(location.search);
+if(q.get('phone'))phone.value=FSF.normalizePhone(q.get('phone'));
 document.getElementById('eye').onclick=()=>{p.type=p.type==='password'?'text':'password'};
-
-phone.addEventListener('input',()=>{
-  phone.value=normalizePhone(phone.value);
-  try{phone.setSelectionRange(phone.value.length,phone.value.length)}catch(e){}
-});
-
+phone.addEventListener('input',()=>{phone.value=FSF.normalizePhone(phone.value)});
 document.getElementById('signup').onsubmit=async(e)=>{
   e.preventDefault();
-
   const name=document.getElementById('name').value.trim();
-  const whatsapp=normalizePhone(phone.value);
+  const whatsapp=FSF.normalizePhone(phone.value);
   const password=p.value;
-
-  if(!name || whatsapp.length<8 || !password){
-    alert('Completa nombre, WhatsApp y contraseña.');
-    return;
-  }
-  if(password.length<6){
-    alert('La contraseña debe tener al menos 6 caracteres.');
-    return;
-  }
-
-  const salt=makeSalt();
-  const passwordHash=await hashPassword(password,salt);
-  const names=splitName(name);
-
-  const user={
-    name,
-    firstName:names.firstName,
-    lastName:names.lastName,
-    whatsapp,
-    passwordSalt:salt,
-    passwordHash,
-    userCreated:true,
-    loggedIn:true,
-    createdAt:new Date().toISOString()
-  };
-
-  localStorage.setItem(KEY,JSON.stringify(user));
-  localStorage.setItem(LEGACY,JSON.stringify(user));
+  if(!name||whatsapp.length<8||password.length<6){status.textContent='Completa los datos. La contraseña debe tener al menos 6 caracteres.';return}
+  submitBtn.disabled=true;status.textContent='Creando tu cuenta...';
+  await FSF.saveLocalAccount(name,whatsapp,password);
   location.href='/elegir-viaje.html';
 };
 </script>
