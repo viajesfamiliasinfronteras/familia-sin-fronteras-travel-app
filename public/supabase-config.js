@@ -9,16 +9,16 @@ function normalizePhone(value){
   return digits ? '+'+digits : '+';
 }
 async function registerTraveler(name,whatsapp,password){
-  const {data,error}=await fsfSupabase.functions.invoke('register-traveler',{
-    body:{name,whatsapp:normalizePhone(whatsapp),password},
-    headers:{Authorization:'Bearer '+FSF_SUPABASE_ANON,apikey:FSF_SUPABASE_ANON}
+  const phone=normalizePhone(whatsapp);
+  const parts=String(name||'').trim().split(/\s+/).filter(Boolean);
+  const firstName=parts.length>1?parts.slice(0,-1).join(' '):(parts[0]||'');
+  const lastName=parts.length>1?parts[parts.length-1]:'';
+  const {data,error}=await fsfSupabase.auth.signUp({
+    phone,
+    password,
+    options:{data:{whatsapp:phone,first_name:firstName,last_name:lastName}}
   });
-  if(error){
-    let message=error.message||'No pudimos crear la cuenta.';
-    try{const ctx=await error.context?.json?.();if(ctx?.error)message=ctx.error}catch(e){}
-    throw new Error(message);
-  }
-  if(data?.error)throw new Error(data.error);
+  if(error)throw error;
   return data;
 }
 async function signInTraveler(whatsapp,password){
