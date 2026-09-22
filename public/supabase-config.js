@@ -145,4 +145,14 @@ async function saveTravelCloud(data,files){
   }
   return docs;
 }
-window.FSFCLOUD={client:fsfSupabase,normalizePhone,registerTraveler,signInTraveler,getCloudUser,syncCloudState,saveTripMembership,saveProfileCloud,saveTravelCloud};
+async function loadTravelCloud(tripId){
+  const user=await getCloudUser(); if(!user)return null;
+  const [t,f,d]=await Promise.all([
+    fsfSupabase.from('passenger_travel').select('*').eq('user_id',user.id).eq('trip_id',tripId).maybeSingle(),
+    fsfSupabase.from('flight_segments').select('*').eq('user_id',user.id).eq('trip_id',tripId).order('direction').order('segment_order'),
+    fsfSupabase.from('travel_documents').select('document_type,original_name,storage_path,processing_status,created_at').eq('user_id',user.id).eq('trip_id',tripId).order('created_at',{ascending:false})
+  ]);
+  if(t.error)throw t.error;if(f.error)throw f.error;if(d.error)throw d.error;
+  return {travel:t.data||null,flights:f.data||[],documents:d.data||[]};
+}
+window.FSFCLOUD={client:fsfSupabase,normalizePhone,registerTraveler,signInTraveler,getCloudUser,syncCloudState,saveTripMembership,saveProfileCloud,saveTravelCloud,loadTravelCloud};
