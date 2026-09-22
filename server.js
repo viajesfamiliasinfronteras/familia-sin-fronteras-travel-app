@@ -10,7 +10,8 @@ const routes={
   '/login':'/login.html',
   '/elegir-viaje':'/elegir-viaje.html',
   '/mi-perfil':'/mi-perfil.html',
-  '/mi-viaje':'/mi-viaje.html'
+  '/mi-viaje':'/mi-viaje.html',
+  '/datos-viaje':'/datos-viaje.html'
 };
 
 http.createServer((req,res)=>{
