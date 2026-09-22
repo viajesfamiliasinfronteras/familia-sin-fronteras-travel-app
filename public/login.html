@@ -6,50 +6,20 @@
 <title>Hola de nuevo</title>
 <link rel="stylesheet" href="/styles.css">
 <style>
-html,body{margin:0;min-height:100%;background:#f4eadb}\nbody{display:flex;justify-content:center}
-.login{
-  position:relative;width:min(100vw,430px);min-height:100svh;margin:0 auto;padding:22px 24px 50px;
-  background:#f4eadb;overflow:hidden
-}
-.grid{
-  position:absolute;left:0;right:0;top:0;height:310px;opacity:.38;
-  background:
-    repeating-linear-gradient(90deg,transparent 0 52px,#da6d45 53px 56px),
-    repeating-linear-gradient(0deg,transparent 0 52px,#da6d45 53px 56px)
-}
+html,body{margin:0;min-height:100%;background:#f4eadb}
+body{display:flex;justify-content:center}
+.login{position:relative;width:min(100vw,430px);min-height:100svh;margin:0 auto;padding:22px 24px 50px;background:#f4eadb;overflow:hidden}
+.grid{position:absolute;left:0;right:0;top:0;height:310px;opacity:.38;background:repeating-linear-gradient(90deg,transparent 0 52px,#da6d45 53px 56px),repeating-linear-gradient(0deg,transparent 0 52px,#da6d45 53px 56px)}
 .content{position:relative;z-index:2}
-.back{
-  width:46px;height:46px;border:2.5px solid #151515;border-radius:16px;
-  background:#f3eadc;display:grid;place-items:center;font-size:22px;
-  text-decoration:none;color:#151515
-}
-h1{
-  margin:94px 0 8px;text-align:center;font-family:Georgia,"Times New Roman",serif;
-  font-size:42px;line-height:1;font-weight:900
-}
-.sub{
-  margin:0 0 28px;text-align:center;font-family:"Courier New",Courier,monospace;
-  font-weight:700
-}
-form{display:grid;gap:13px}
-.field{position:relative}
-input{
-  width:100%;height:58px;border:3px solid #151515;border-radius:18px;
-  background:#f3eadc;padding:0 18px;font-size:17px;outline:none
-}
-.eye{
-  position:absolute;right:9px;top:50%;transform:translateY(-50%);
-  width:38px;height:38px;border:0;background:transparent;font-size:20px
-}
-.primary{
-  height:58px;border:3px solid #151515;border-radius:18px;background:#dc6a40;
-  font-weight:900;font-size:17px
-}
+.back{width:46px;height:46px;border:2.5px solid #151515;border-radius:16px;background:#f3eadc;display:grid;place-items:center;font-size:22px;text-decoration:none;color:#151515}
+h1{margin:94px 0 8px;text-align:center;font-family:Georgia,"Times New Roman",serif;font-size:42px;line-height:1;font-weight:900}
+.sub{margin:0 0 28px;text-align:center;font-family:"Courier New",Courier,monospace;font-weight:700}
+form{display:grid;gap:13px}.field{position:relative}
+input{width:100%;height:58px;border:3px solid #151515;border-radius:18px;background:#f3eadc;padding:0 18px;font-size:17px;outline:none}
+.eye{position:absolute;right:9px;top:50%;transform:translateY(-50%);width:38px;height:38px;border:0;background:transparent;font-size:20px}
+.primary{height:58px;border:3px solid #151515;border-radius:18px;background:#dc6a40;font-weight:900;font-size:17px}
 .error{min-height:18px;text-align:center;font-size:13px;font-weight:700;color:#a12d20}
-.wave{
-  position:absolute;left:-30px;right:-30px;bottom:-65px;height:130px;
-  background:#65784a;border-radius:50% 50% 0 0/45% 45% 0 0;transform:rotate(-2deg)
-}
+.wave{position:absolute;left:-30px;right:-30px;bottom:-65px;height:130px;background:#65784a;border-radius:50% 50% 0 0/45% 45% 0 0;transform:rotate(-2deg)}
 </style>
 </head>
 <body>
@@ -59,7 +29,6 @@ input{
     <a class="back" href="/" aria-label="Volver">←</a>
     <h1>Hola de nuevo</h1>
     <p class="sub">Entra a tu viaje grupal</p>
-
     <form id="loginForm">
       <input id="whatsapp" value="+" placeholder="+5511999999999" inputmode="tel" autocomplete="tel" required>
       <div class="field">
@@ -67,86 +36,39 @@ input{
         <button class="eye" id="eye" type="button" aria-label="Mostrar contraseña">◉</button>
       </div>
       <div class="error" id="error"></div>
-      <button class="primary" type="submit">ENTRAR</button>
+      <button class="primary" id="submitBtn" type="submit">ENTRAR</button>
     </form>
   </div>
   <div class="wave"></div>
 </main>
-
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/supabase-config.js"></script>
+<script src="/app.js"></script>
 <script>
-function normalizePhone(value){
-  const digits=String(value||'').replace(/\D/g,'');
-  return digits ? '+'+digits : '+';
-}
-async function hashPassword(password,salt){
-  const data=new TextEncoder().encode(salt+'::'+password);
-  const digest=await crypto.subtle.digest('SHA-256',data);
-  return Array.from(new Uint8Array(digest))
-    .map(b=>b.toString(16).padStart(2,'0')).join('');
-}
-function makeSalt(){
-  if(crypto.randomUUID) return crypto.randomUUID();
-  const arr=new Uint32Array(4); crypto.getRandomValues(arr);
-  return Array.from(arr).join('-');
-}
-
 const phone=document.getElementById('whatsapp');
 const pass=document.getElementById('password');
 const error=document.getElementById('error');
-
-phone.addEventListener('input',()=>{
-  const n=normalizePhone(phone.value);
-  phone.value=n;
-  try{phone.setSelectionRange(n.length,n.length)}catch(e){}
-});
-document.getElementById('eye').onclick=()=>{
-  pass.type=pass.type==='password'?'text':'password';
-};
-
+phone.addEventListener('input',()=>{phone.value=FSFCLOUD.normalizePhone(phone.value)});
+document.getElementById('eye').onclick=()=>{pass.type=pass.type==='password'?'text':'password'};
 document.getElementById('loginForm').onsubmit=async(e)=>{
-  e.preventDefault();
-  error.textContent='';
-
-  let user=null;
-  try{user=JSON.parse(localStorage.getItem('fsf_user')||'null')}catch(e){}
-
-  if(!user){
-    error.textContent='No encontramos un usuario guardado en este dispositivo.';
-    return;
-  }
-
-  const whatsapp=normalizePhone(phone.value);
-  const password=pass.value;
-  const savedPhone=normalizePhone(user.whatsapp||'');
-
-  if(whatsapp!==savedPhone){
-    error.textContent='El WhatsApp no coincide.';
-    return;
-  }
-
-  // Compatibility with the first prototype:
-  // those accounts saved name + WhatsApp but did not save the password.
-  if(!user.passwordHash || !user.passwordSalt){
-    const salt=makeSalt();
-    user.passwordSalt=salt;
-    user.passwordHash=await hashPassword(password,salt);
-  }else{
-    const testHash=await hashPassword(password,user.passwordSalt);
-    if(testHash!==user.passwordHash){
-      error.textContent='Contraseña incorrecta.';
-      return;
+  e.preventDefault(); error.textContent=''; submitBtn.disabled=true;
+  const whatsapp=FSFCLOUD.normalizePhone(phone.value), password=pass.value;
+  try{
+    try{
+      await FSFCLOUD.signInTraveler(whatsapp,password);
+    }catch(firstErr){
+      let legacy=null;
+      try{legacy=JSON.parse(localStorage.getItem('fsf_user')||'null')}catch(e){}
+      if(legacy && FSFCLOUD.normalizePhone(legacy.whatsapp)===whatsapp){
+        await FSFCLOUD.registerTraveler(legacy.name||[legacy.firstName,legacy.lastName].filter(Boolean).join(' ')||'Pasajero',whatsapp,password);
+        await FSFCLOUD.signInTraveler(whatsapp,password);
+      }else{throw firstErr}
     }
-  }
-
-  user.userCreated=true;
-  user.loggedIn=true;
-  user.rememberMe=true;
-  localStorage.setItem('fsf_user',JSON.stringify(user));
-  const currentState=(()=>{try{return JSON.parse(localStorage.getItem('fsf_travel_user_v1')||'{}')}catch(e){return {}}})();
-  localStorage.setItem('fsf_travel_user_v1',JSON.stringify({...currentState,...user}));
-
-  const trip=currentState.tripId || localStorage.getItem('fsf_trip');
-  window.location.replace(trip ? '/mi-perfil.html' : '/elegir-viaje.html');
+    const state=await FSFCLOUD.syncCloudState();
+    location.replace(FSF.nextRoute(state));
+  }catch(err){
+    error.textContent=(err.message||'No pudimos iniciar sesión.').replace('Invalid login credentials','WhatsApp o contraseña incorrectos.');
+  }finally{submitBtn.disabled=false}
 };
 </script>
 </body>
