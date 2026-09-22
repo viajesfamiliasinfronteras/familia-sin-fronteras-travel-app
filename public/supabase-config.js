@@ -10,7 +10,8 @@ function normalizePhone(value){
 }
 async function registerTraveler(name,whatsapp,password){
   const {data,error}=await fsfSupabase.functions.invoke('register-traveler',{
-    body:{name,whatsapp:normalizePhone(whatsapp),password}
+    body:{name,whatsapp:normalizePhone(whatsapp),password},
+    headers:{Authorization:'Bearer '+FSF_SUPABASE_ANON}
   });
   if(error){
     let message=error.message||'No pudimos crear la cuenta.';
@@ -145,6 +146,47 @@ async function saveTravelCloud(data,files){
   }
   return docs;
 }
+function readLegacyState(){
+  let a={},b={};
+  try{a=JSON.parse(localStorage.getItem('fsf_travel_user_v1')||'{}')||{}}catch(e){}
+  try{b=JSON.parse(localStorage.getItem('fsf_user')||'{}')||{}}catch(e){}
+  return {...b,...a};
+}
+async function migrateLegacyState(legacy){
+  const user=await getCloudUser(); if(!user||!legacy)return null;
+  const patch={};
+  if(legacy.tripId){
+    await saveTripMembership(legacy.tripId);
+    patch.tripId=legacy.tripId;
+  }
+  const profileUpdate={
+    first_name:legacy.firstName||'',
+    last_name:legacy.lastName||'',
+    nationality:legacy.nationality||'',
+    age_range:legacy.age||'',
+    travel_with:legacy.travelWith||'',
+    interests:Array.isArray(legacy.interests)?legacy.interests:[],
+    personality:Array.isArray(legacy.personality)?legacy.personality:[],
+    about:legacy.about||'',
+    profile_complete:!!legacy.profileComplete,
+    active_trip_id:legacy.tripId||null,
+    updated_at:new Date().toISOString()
+  };
+  const {error:pErr}=await fsfSupabase.from('profiles').update(profileUpdate).eq('user_id',user.id);
+  if(pErr)throw pErr;
+  if(legacy.travelData && legacy.tripId){
+    const d=legacy.travelData;
+    await saveTravelCloud({
+      tripId:legacy.tripId,
+      outboundAirline:d.outboundAirline||'',outboundFlight:d.outboundFlight||'',outboundDate:d.outboundDate||'',outboundTime:d.outboundTime||'',outboundFrom:d.outboundFrom||'',outboundTo:d.outboundTo||'',
+      returnAirline:d.returnAirline||'',returnFlight:d.returnFlight||'',returnDate:d.returnDate||'',returnTime:d.returnTime||'',returnFrom:d.returnFrom||'',returnTo:d.returnTo||'',
+      early:d.early||'',earlyDate:d.earlyDate||'',late:d.late||'',lateDate:d.lateDate||'',
+      transferMap:({'Grupo':'group','Privado':'private','Por mi cuenta':'self','Aún no sé':'unknown'})[d.transfer]||'unknown',
+      comments:d.comments||''
+    },{});
+  }
+  return syncCloudState();
+}
 async function loadTravelCloud(tripId){
   const user=await getCloudUser(); if(!user)return null;
   const [t,f,d]=await Promise.all([
@@ -155,4 +197,4 @@ async function loadTravelCloud(tripId){
   if(t.error)throw t.error;if(f.error)throw f.error;if(d.error)throw d.error;
   return {travel:t.data||null,flights:f.data||[],documents:d.data||[]};
 }
-window.FSFCLOUD={client:fsfSupabase,normalizePhone,registerTraveler,signInTraveler,getCloudUser,syncCloudState,saveTripMembership,saveProfileCloud,saveTravelCloud,loadTravelCloud};
+window.FSFCLOUD={client:fsfSupabase,normalizePhone,registerTraveler,signInTraveler,getCloudUser,syncCloudState,saveTripMembership,saveProfileCloud,saveTravelCloud,loadTravelCloud,readLegacyState,migrateLegacyState};
