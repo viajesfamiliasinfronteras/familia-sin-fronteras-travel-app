@@ -39,38 +39,24 @@ input{width:100%;height:56px;border:3px solid #151515;border-radius:18px;backgro
     </div>
   </main>
 </div>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="/supabase-config.js"></script>
 <script src="/app.js"></script>
 <script>
 const p=document.getElementById('password');
 const phone=document.getElementById('whatsapp');
 const status=document.getElementById('status');
+const q=new URLSearchParams(location.search);
+if(q.get('phone'))phone.value=FSF.normalizePhone(q.get('phone'));
 document.getElementById('eye').onclick=()=>{p.type=p.type==='password'?'text':'password'};
-phone.addEventListener('input',()=>{
-  phone.value=FSFCLOUD.normalizePhone(phone.value);
-  try{phone.setSelectionRange(phone.value.length,phone.value.length)}catch(e){}
-});
+phone.addEventListener('input',()=>{phone.value=FSF.normalizePhone(phone.value)});
 document.getElementById('signup').onsubmit=async(e)=>{
   e.preventDefault();
   const name=document.getElementById('name').value.trim();
-  const whatsapp=FSFCLOUD.normalizePhone(phone.value);
+  const whatsapp=FSF.normalizePhone(phone.value);
   const password=p.value;
-  if(!name || whatsapp.length<8 || password.length<6){
-    status.textContent='Completa los datos. La contraseña debe tener al menos 6 caracteres.';
-    return;
-  }
-  submitBtn.disabled=true; status.textContent='Creando tu cuenta...';
-  try{
-    await FSFCLOUD.registerTraveler(name,whatsapp,password);
-    await FSFCLOUD.signInTraveler(whatsapp,password);
-    const names=FSF.splitName(name);
-    FSF.writeState({name,firstName:names.firstName,lastName:names.lastName,whatsapp,userCreated:true,loggedIn:true});
-    await FSFCLOUD.syncCloudState();
-    location.href='/elegir-viaje.html';
-  }catch(err){
-    status.textContent=err.message||'No pudimos crear la cuenta.';
-  }finally{submitBtn.disabled=false}
+  if(!name||whatsapp.length<8||password.length<6){status.textContent='Completa los datos. La contraseña debe tener al menos 6 caracteres.';return}
+  submitBtn.disabled=true;status.textContent='Creando tu cuenta...';
+  await FSF.saveLocalAccount(name,whatsapp,password);
+  location.href='/elegir-viaje.html';
 };
 </script>
 </body>
