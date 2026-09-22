@@ -41,85 +41,20 @@ input{width:100%;height:58px;border:3px solid #151515;border-radius:18px;backgro
   </div>
   <div class="wave"></div>
 </main>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="/supabase-config.js"></script>
 <script src="/app.js"></script>
 <script>
 const phone=document.getElementById('whatsapp');
 const pass=document.getElementById('password');
 const error=document.getElementById('error');
-phone.addEventListener('input',()=>{phone.value=FSFCLOUD.normalizePhone(phone.value)});
+phone.addEventListener('input',()=>{phone.value=FSF.normalizePhone(phone.value)});
 document.getElementById('eye').onclick=()=>{pass.type=pass.type==='password'?'text':'password'};
-async function legacyHash(password,salt){
-  const data=new TextEncoder().encode(salt+'::'+password);
-  const digest=await crypto.subtle.digest('SHA-256',data);
-  return Array.from(new Uint8Array(digest)).map(b=>b.toString(16).padStart(2,'0')).join('');
-}
-function legacySalt(){
-  if(crypto.randomUUID)return crypto.randomUUID();
-  const arr=new Uint32Array(4);crypto.getRandomValues(arr);return Array.from(arr).join('-');
-}
-async function tryLegacyLogin(whatsapp,password){
-  let legacy=null;
-  try{legacy=JSON.parse(localStorage.getItem('fsf_user')||'null')}catch(e){}
-  if(!legacy)return null;
-  if(FSFCLOUD.normalizePhone(legacy.whatsapp)!==whatsapp)return null;
-
-  if(legacy.passwordHash && legacy.passwordSalt){
-    const test=await legacyHash(password,legacy.passwordSalt);
-    if(test!==legacy.passwordHash)throw new Error('Contraseña incorrecta.');
-  }else{
-    const salt=legacySalt();
-    legacy.passwordSalt=salt;
-    legacy.passwordHash=await legacyHash(password,salt);
-  }
-
-  legacy.userCreated=true;
-  legacy.loggedIn=true;
-  legacy.rememberMe=true;
-  localStorage.setItem('fsf_user',JSON.stringify(legacy));
-
-  const current=FSF.readState();
-  const names=FSF.splitName(legacy.name||'');
-  const trip=current.tripId||localStorage.getItem('fsf_trip')||'';
-  return FSF.writeState({
-    ...current,
-    name:legacy.name||current.name||'',
-    firstName:current.firstName||names.firstName,
-    lastName:current.lastName||names.lastName,
-    whatsapp,
-    userCreated:true,
-    loggedIn:true,
-    rememberMe:true,
-    legacyMode:true,
-    tripId:trip||current.tripId||''
-  });
-}
 document.getElementById('loginForm').onsubmit=async(e)=>{
-  e.preventDefault(); error.textContent=''; submitBtn.disabled=true;
-  const whatsapp=FSFCLOUD.normalizePhone(phone.value), password=pass.value;
-  try{
-    try{
-      await FSFCLOUD.signInTraveler(whatsapp,password);
-      const state=await FSFCLOUD.syncCloudState();
-      FSF.writeState({legacyMode:false});
-      location.replace(FSF.nextRoute(state));
-      return;
-    }catch(cloudErr){
-      const legacyState=await tryLegacyLogin(whatsapp,password);
-      if(legacyState){
-        location.replace(FSF.nextRoute());
-        return;
-      }
-      throw cloudErr;
-    }
-  }catch(err){
-    let msg=err.message||'No pudimos iniciar sesión.';
-    msg=msg.replace('Invalid login credentials','WhatsApp o contraseña incorrectos.');
-    msg=msg.replace('Failed to send a request to the Edge Function','No encontramos ese usuario.');
-    msg=msg.replace('Solicitud no autorizada','No encontramos ese usuario.');
-    error.textContent=msg;
-  }finally{submitBtn.disabled=false}
+  e.preventDefault();error.textContent='';submitBtn.disabled=true;
+  const whatsapp=FSF.normalizePhone(phone.value),password=pass.value;
+  const state=await FSF.loginLocal(whatsapp,password);
+  if(state){location.replace(FSF.nextRoute());return}
+  error.innerHTML='No encontramos esa cuenta en este teléfono.<br><a href="/crear-cuenta.html?phone='+encodeURIComponent(whatsapp)+'" style="color:inherit;font-weight:900">CREAR USUARIO AHORA</a>';
+  submitBtn.disabled=false;
 };
 </script>
 </body>
