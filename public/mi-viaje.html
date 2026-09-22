@@ -75,32 +75,22 @@
   </section>
 </main>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="/supabase-config.js"></script>
 <script src="/app.js"></script>
 <script>
-let s=null;
-(async()=>{
-  const user=await FSFCLOUD.getCloudUser();
-  if(!user){location.replace('/login');return}
-
-  s=await FSFCLOUD.syncCloudState();
-  if(!s?.tripId){location.replace('/elegir-viaje.html');return}
-  if(!s?.profileComplete){location.replace('/mi-perfil.html');return}
-
-  const q=new URLSearchParams(location.search);
-  const preview=q.get('grupo');
-  const valid=['japon-oct-2026','japon-ene-2027','islandia-feb-2027','china-abr-2027'];
-  const tripId=valid.includes(preview)?preview:s.tripId;
-
-  tripPoster.src=FSF.tripArt(tripId);
-  tripPoster.alt=FSF.tripLabel(tripId);
-
-  if(preview && valid.includes(preview)){
-    previewLabel.textContent='Vista de prueba: '+FSF.tripLabel(tripId);
-    previewLabel.classList.add('show');
+const s=FSF.requireUser();
+if(s){
+  if(!s.tripId){location.replace('/elegir-viaje.html')}
+  else if(!s.profileComplete){location.replace('/mi-perfil.html')}
+  else{
+    const q=new URLSearchParams(location.search);
+    const preview=q.get('grupo');
+    const valid=['japon-oct-2026','japon-ene-2027','islandia-feb-2027','china-abr-2027'];
+    const tripId=valid.includes(preview)?preview:s.tripId;
+    tripPoster.src=FSF.tripArt(tripId);
+    tripPoster.alt=FSF.tripLabel(tripId);
+    if(preview&&valid.includes(preview)){previewLabel.textContent='Vista de prueba: '+FSF.tripLabel(tripId);previewLabel.classList.add('show')}
   }
-})();
+}
 
 continueBtn.onclick=()=>{
   FSF.writeState({travelDataStarted:true});
