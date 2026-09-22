@@ -13,6 +13,7 @@ async function saveLocalAccount(name,whatsapp,password){
 }
 async function loginLocal(whatsapp,password){
   let legacy=null;try{legacy=JSON.parse(localStorage.getItem('fsf_user')||'null')}catch(e){}
+  if(!legacy){const current=readState();if(current?.userCreated)legacy=current}
   if(!legacy)return null;
   const phone=normalizePhone(whatsapp);
   if(normalizePhone(legacy.whatsapp)!==phone)return null;
