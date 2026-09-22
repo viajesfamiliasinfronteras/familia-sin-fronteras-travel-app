@@ -10,19 +10,25 @@ function normalizePhone(value){
 }
 async function registerTraveler(name,whatsapp,password){
   const phone=normalizePhone(whatsapp);
-  const parts=String(name||'').trim().split(/\s+/).filter(Boolean);
-  const firstName=parts.length>1?parts.slice(0,-1).join(' '):(parts[0]||'');
-  const lastName=parts.length>1?parts[parts.length-1]:'';
-  const {data,error}=await fsfSupabase.auth.signUp({
-    phone,
-    password,
-    options:{data:{whatsapp:phone,first_name:firstName,last_name:lastName}}
+  const {data,error}=await fsfSupabase.functions.invoke('register-traveler',{
+    body:{name,whatsapp:phone,password},
+    headers:{Authorization:'Bearer '+FSF_SUPABASE_ANON,apikey:FSF_SUPABASE_ANON}
   });
-  if(error)throw error;
+  if(error){
+    let message=error.message||'No pudimos crear la cuenta.';
+    try{const ctx=await error.context?.json?.();if(ctx?.error)message=ctx.error}catch(e){}
+    throw new Error(message);
+  }
+  if(data?.error)throw new Error(data.error);
   return data;
 }
+function loginEmailFromPhone(whatsapp){
+  const digits=String(whatsapp||'').replace(/\D/g,'');
+  return 'p'+digits+'@fsf.local';
+}
 async function signInTraveler(whatsapp,password){
-  const {data,error}=await fsfSupabase.auth.signInWithPassword({phone:normalizePhone(whatsapp),password});
+  const email=loginEmailFromPhone(whatsapp);
+  const {data,error}=await fsfSupabase.auth.signInWithPassword({email,password});
   if(error)throw error;
   return data;
 }
@@ -197,4 +203,4 @@ async function loadTravelCloud(tripId){
   if(t.error)throw t.error;if(f.error)throw f.error;if(d.error)throw d.error;
   return {travel:t.data||null,flights:f.data||[],documents:d.data||[]};
 }
-window.FSFCLOUD={client:fsfSupabase,normalizePhone,registerTraveler,signInTraveler,getCloudUser,syncCloudState,saveTripMembership,saveProfileCloud,saveTravelCloud,loadTravelCloud,readLegacyState,migrateLegacyState};
+window.FSFCLOUD={client:fsfSupabase,normalizePhone,loginEmailFromPhone,registerTraveler,signInTraveler,getCloudUser,syncCloudState,saveTripMembership,saveProfileCloud,saveTravelCloud,loadTravelCloud,readLegacyState,migrateLegacyState};
