@@ -8,7 +8,8 @@ function nextRoute(){
   const s=readState();
   if(!s.tripId) return '/elegir-viaje.html';
   if(!s.profileComplete) return '/mi-perfil.html';
-  return '/mi-viaje.html';
+  if(!s.travelDataStarted) return '/mi-viaje.html';
+  return '/datos-viaje.html';
 }
 const TRIPS={
   'japon-oct-2026':'Japón · Octubre 2026',
@@ -16,5 +17,12 @@ const TRIPS={
   'islandia-feb-2027':'Islandia · Febrero 2027',
   'china-abr-2027':'China · Abril 2027'
 };
+const TRIP_ART={
+  'japon-oct-2026':'/assets/japon-octubre.jpg',
+  'japon-ene-2027':'/assets/japon-enero.jpg',
+  'islandia-feb-2027':'/assets/islandia.jpg',
+  'china-abr-2027':'/assets/china.jpg'
+};
 function tripLabel(id){return TRIPS[id]||id||''}
-window.FSF={readState,writeState,hashPassword,splitName,requireUser,nextRoute,tripLabel};
+function tripArt(id){return TRIP_ART[id]||''}
+window.FSF={readState,writeState,hashPassword,splitName,requireUser,nextRoute,tripLabel,tripArt};
