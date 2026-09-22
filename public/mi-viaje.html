@@ -1,8 +1,57 @@
-<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><link rel="stylesheet" href="/app.css"><title>Mi viaje</title><style>
-.home{min-height:100svh;padding:28px 22px 110px;position:relative}
-.card{position:relative;z-index:2;margin-top:92px;background:rgba(255,250,235,.88);border:2.5px solid var(--ink);border-radius:24px;padding:24px;text-align:center}
-.card h1{font-size:46px;margin:0 0 12px}.card p{margin:8px 0}.trip{font-weight:800;font-size:21px}
-.note{font-family:"Courier New",monospace;font-weight:700;font-size:14px}
-</style></head><body><main class="app home"><div class="grid-bg"></div><div class="card"><h1 class="retro-title">Tu viaje</h1><p class="trip" id="trip"></p><p class="note">Tu grupo y tu perfil ya quedaron guardados.</p></div><div class="bottom-sun"></div><div class="bottom-wave"></div></main><script src="/app.js"></script><script>
-const s=FSF.requireUser();if(s){if(!s.tripId){location.replace('/elegir-viaje.html')}else if(!s.profileComplete){location.replace('/mi-perfil.html')}else{document.getElementById('trip').textContent=FSF.tripLabel(s.tripId)}}
-</script></body></html>
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link rel="stylesheet" href="/app.css">
+<title>Tu viaje</title>
+<style>
+.home{min-height:100svh;padding:12px;position:relative;background:
+linear-gradient(rgba(238,118,70,.55) 2px,transparent 2px),
+linear-gradient(90deg,rgba(238,118,70,.55) 2px,transparent 2px),
+var(--cream);background-size:48px 48px}
+.shell{min-height:calc(100svh - 24px);background:rgba(250,244,229,.96);border-radius:28px;padding:14px 14px 28px;position:relative;overflow:hidden}
+.hero{position:relative;margin:10px 0 0;border:2.5px solid var(--ink);border-radius:24px;overflow:hidden;background:var(--cream2)}
+.hero img{width:100%;height:265px;object-fit:cover;display:block}
+.hero:after{content:"";position:absolute;inset:auto 0 0;height:32%;background:linear-gradient(transparent,rgba(17,23,18,.12));pointer-events:none}
+.card{position:relative;z-index:2;margin:-18px 10px 0;background:rgba(255,250,235,.97);border:2.5px solid var(--ink);border-radius:24px;padding:22px 18px;text-align:center}
+.card h1{font-size:46px;margin:0 0 8px}.trip{font-weight:900;font-size:22px;margin:0 0 10px}.fun{font-family:"Courier Prime",monospace;font-weight:700;font-size:15px;margin:4px 0 8px}.note{font-family:"Courier Prime",monospace;font-weight:700;font-size:13px;line-height:1.35;margin:8px 0 0}
+.cta{margin:18px 10px 0;background:var(--olive);color:#fff;border-color:var(--olive)}
+.mini{font-size:11px;text-align:center;margin:8px 20px 0;font-weight:700}
+</style>
+</head>
+<body>
+<main class="app home">
+  <section class="shell">
+    <div class="hero"><img id="tripArt" alt=""></div>
+    <div class="card">
+      <h1 class="retro-title">Tu viaje</h1>
+      <p class="trip" id="trip"></p>
+      <p class="fun">La aventura empieza pronto ✦</p>
+      <p class="note">Tu grupo y tu perfil ya quedaron guardados.</p>
+    </div>
+    <button class="primary cta" id="continueBtn">CONTINUAR CON LOS DATOS DE TU VIAJE</button>
+    <p class="mini">Ahora necesitamos tus vuelos y algunos datos para poder acompañarte durante el viaje.</p>
+  </section>
+</main>
+<script src="/app.js"></script>
+<script>
+const s=FSF.requireUser();
+if(s){
+  if(!s.tripId){location.replace('/elegir-viaje.html')}
+  else if(!s.profileComplete){location.replace('/mi-perfil.html')}
+  else{
+    document.getElementById('trip').textContent=FSF.tripLabel(s.tripId);
+    const art=FSF.tripArt(s.tripId);
+    const img=document.getElementById('tripArt');
+    img.src=art;
+    img.alt=FSF.tripLabel(s.tripId);
+  }
+}
+document.getElementById('continueBtn').onclick=()=>{
+  FSF.writeState({travelDataStarted:true});
+  location.href='/datos-viaje.html';
+};
+</script>
+</body>
+</html>
