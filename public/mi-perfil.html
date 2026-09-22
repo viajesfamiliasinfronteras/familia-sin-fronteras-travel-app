@@ -32,7 +32,7 @@
       z-index:5;
       margin-bottom:8px;
     }
-    .profile-head{
+    .trip-badge{display:inline-flex;align-items:center;min-height:29px;padding:5px 10px;border:1.5px solid var(--ink);border-radius:999px;background:var(--mustard);font-family:"Courier Prime",monospace;font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;margin:0 0 8px}.profile-head{
       display:grid;
       grid-template-columns:1fr auto;
       gap:12px;
@@ -132,7 +132,7 @@
   <section class="profile-shell">
     <a class="back-btn" href="/elegir-viaje.html">‹</a>
 
-    <div class="profile-head">
+    <div class="trip-badge" id="tripBadge"></div><div class="profile-head">
       <div class="profile-copy">
         <h1 class="retro-title">Mi perfil</h1>
         <p>Cuéntanos un poco sobre ti.</p>
@@ -246,6 +246,7 @@
   }
 
   if(s){
+    document.getElementById('tripBadge').textContent=FSF.tripLabel(s.tripId);
     firstName.value=s.firstName||'';
     lastName.value=s.lastName||'';
     nationality.value=s.nationality||'';
