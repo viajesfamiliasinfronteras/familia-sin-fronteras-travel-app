@@ -1,0 +1,27 @@
+<!doctype html><html lang="es"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link rel="stylesheet" href="/app.css"><title>Tu usuario está listo</title>
+<style>
+.ready{min-height:100svh;padding:18px 16px 34px;display:flex;flex-direction:column;background:var(--cream);position:relative}
+.step{text-align:center;font:700 14px "Courier Prime",monospace;margin:10px 0 7px}.dots{display:flex;justify-content:center;gap:16px;align-items:center;margin-bottom:22px}.dot{width:18px;height:18px;border:2px solid var(--ink);border-radius:50%;background:var(--cream2)}.dot.on{background:var(--olive)}
+.card{border:3px solid var(--ink);border-radius:30px;background:var(--cream2);padding:28px 18px 20px;text-align:center;position:relative;z-index:2}
+.card h1{font-size:49px;margin:0 0 12px}.card p{font:700 18px "Courier Prime",monospace;margin:0}
+.traveler{height:290px;position:relative;margin:4px auto 6px;display:grid;place-items:center}
+.body{width:118px;height:210px;border:4px solid var(--ink);border-radius:55% 50% 44% 46%;background:var(--mustard);position:relative;transform:rotate(5deg)}
+.body:before{content:"";position:absolute;width:118px;height:42px;background:var(--olive);border:4px solid var(--ink);border-radius:50% 50% 20% 20%;left:-4px;top:-21px;transform:rotate(-4deg)}
+.face{position:absolute;top:65px;left:36px;font-size:32px}.bag{position:absolute;width:74px;height:105px;border:4px solid var(--ink);background:var(--olive);border-radius:18px;right:-47px;bottom:20px;transform:rotate(-8deg)}
+.sun{position:absolute;width:105px;height:105px;background:var(--terracotta);border-radius:50%;left:18px;top:150px;opacity:.9}.plane{position:absolute;font-size:64px;right:20px;top:120px;transform:rotate(-12deg)}
+.primary{margin-top:18px;background:var(--olive);color:white}
+.note{text-align:center;font:700 14px "Courier Prime",monospace;margin:13px 28px 0}
+.grid-bg{height:100%}
+</style></head><body>
+<main class="app ready"><div class="grid-bg"></div>
+<div class="step">Paso 2 de 4</div><div class="dots"><span class="dot on"></span><span class="dot on"></span><span class="dot"></span><span class="dot"></span></div>
+<section class="card"><h1 class="retro-title">¡Tu usuario<br>ya está listo!</h1><p>Ahora continuemos con tu viaje.</p>
+<div class="traveler"><div class="sun"></div><div class="plane">✈</div><div class="body"><span class="face">☺</span><span class="bag"></span></div></div>
+</section>
+<button class="primary" id="go">CONTINUAR</button><p class="note">Ahora elige el viaje grupal al que ya estás inscrito.</p>
+</main><script src="/app.js"></script><script>
+const s=FSF.requireUser();
+go.onclick=()=>{FSF.writeState({accountReadySeen:true});location.href='/elegir-viaje.html'+(FSF.isTour()?'?tourframe=1':'')};
+</script></body></html>

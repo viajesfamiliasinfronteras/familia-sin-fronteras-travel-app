@@ -1,106 +1,13 @@
-<!doctype html>
-<html lang="es">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<link rel="stylesheet" href="/app.css">
-<title>Tu viaje</title>
+<!doctype html><html lang="es"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link rel="stylesheet" href="/app.css"><title>Tu viaje</title>
 <style>
-.home{
-  min-height:100svh;
-  padding:10px 10px 28px;
-  background:#f7ebd7;
-}
-.shell{
-  min-height:calc(100svh - 20px);
-  background:#f7ebd7;
-  border-radius:28px;
-  overflow:hidden;
-}
-.poster-wrap{
-  width:100%;
-  aspect-ratio:924 / 1020;
-  border-radius:26px;
-  overflow:hidden;
-  background:#f7ebd7;
-  position:relative;
-}
-.poster{
-  display:block;
-  width:100%;
-  height:100%;
-  object-fit:cover;
-  object-position:top center;
-}
-.actions{
-  padding:10px 12px 22px;
-  background:#f7ebd7;
-}
-.cta{
-  width:100%;
-  min-height:58px;
-  border:2.5px solid var(--ink);
-  border-radius:22px;
-  background:var(--olive);
-  color:white;
-  font-weight:900;
-  font-size:18px;
-  line-height:1.15;
-  padding:12px 14px;
-}
-.note{
-  margin:10px 16px 0;
-  text-align:center;
-  font-size:13px;
-  font-weight:700;
-  line-height:1.35;
-}
-.preview-switch{
-  display:none;
-  margin:8px 12px 0;
-  font-size:11px;
-  text-align:center;
-  font-family:"Courier Prime",monospace;
-}
-.preview-switch.show{display:block}
-</style>
-</head>
-<body>
-<main class="app home">
-  <section class="shell">
-    <div class="poster-wrap">
-      <img id="tripPoster" class="poster" alt="Ilustración de tu viaje">
-    </div>
-    <div class="actions">
-      <button class="cta" id="continueBtn">CONTINUAR CON LOS DATOS DE TU VIAJE</button>
-      <p class="note">Ahora necesitamos tus vuelos y algunos datos para poder acompañarte durante el viaje.</p>
-      <p class="preview-switch" id="previewLabel"></p>
-    </div>
-  </section>
-</main>
-
-<script src="/app.js"></script>
-<script>
-window.scrollTo(0,0);
+.home{min-height:100svh;padding:10px 10px 28px;background:#f7ebd7}.shell{min-height:calc(100svh - 20px);background:#f7ebd7;border-radius:28px;overflow:hidden}.poster-wrap{width:100%;height:min(620px,72svh);border-radius:26px;overflow:hidden;background:#f7ebd7}.poster{display:block;width:100%;height:auto;min-height:100%;object-fit:cover;object-position:top center}.actions{padding:12px 12px 22px;background:#f7ebd7}.cta{width:100%;min-height:58px;border:2.5px solid var(--ink);border-radius:22px;background:var(--olive);color:white;font-weight:900;font-size:18px;line-height:1.15;padding:12px 14px}.note{margin:10px 16px 0;text-align:center;font-size:13px;font-weight:700;line-height:1.35}
+</style></head><body>
+<main class="app home"><section class="shell"><div class="poster-wrap"><img id="tripPoster" class="poster" alt="Ilustración de tu viaje"></div><div class="actions"><button class="cta" id="continueBtn">CREA TU PERFIL DE VIAJERO</button><p class="note">Queremos conocerte un poco antes de comenzar a preparar tu viaje.</p></div></section></main>
+<script src="/app.js"></script><script>
 const s=FSF.requireUser();
-if(s){
-  if(!s.tripId){location.replace('/elegir-viaje.html')}
-  else if(!s.profileComplete){location.replace('/mi-perfil.html')}
-  else{
-    const q=new URLSearchParams(location.search);
-    const preview=q.get('grupo');
-    const valid=['japon-oct-2026','japon-ene-2027','islandia-feb-2027','china-abr-2027'];
-    const tripId=valid.includes(preview)?preview:s.tripId;
-    tripPoster.src=FSF.tripArt(tripId);
-    tripPoster.alt=FSF.tripLabel(tripId);
-    if(preview&&valid.includes(preview)){previewLabel.textContent='Vista de prueba: '+FSF.tripLabel(tripId);previewLabel.classList.add('show')}
-  }
-}
-
-continueBtn.onclick=()=>{
-  FSF.writeState({travelDataStarted:true});
-  location.href='/datos-viaje.html';
-};
-</script>
-</body>
-</html>
+if(s&&!s.tripId&&!FSF.isTour())location.replace('/elegir-viaje.html');
+const tripId=s?.tripId||'japon-oct-2026';tripPoster.src=FSF.tripArt(tripId);tripPoster.alt=FSF.tripLabel(tripId);
+continueBtn.onclick=()=>{location.href='/mi-perfil.html'+(FSF.isTour()?'?tourframe=1':'')};
+</script></body></html>

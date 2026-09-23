@@ -1,17 +1,61 @@
 const FSF_KEY='fsf_travel_user_v1';
-function readState(){try{return JSON.parse(localStorage.getItem(FSF_KEY))||{}}catch{return{}}}
-function writeState(patch){const next={...readState(),...patch,updatedAt:new Date().toISOString()};localStorage.setItem(FSF_KEY,JSON.stringify(next));return next}
-function splitName(full){const parts=String(full||'').trim().split(/\s+/).filter(Boolean);if(parts.length<=1)return{firstName:parts[0]||'',lastName:''};return{firstName:parts.slice(0,-1).join(' '),lastName:parts[parts.length-1]}}
-function normalizePhone(value){const digits=String(value||'').replace(/\D/g,'');return digits?'+'+digits:'+'}
-function makeSalt(){if(crypto.randomUUID)return crypto.randomUUID();const a=new Uint32Array(4);crypto.getRandomValues(a);return Array.from(a).join('-')}
-async function hashPassword(password,salt){const bytes=new TextEncoder().encode(salt+'::'+password);const digest=await crypto.subtle.digest('SHA-256',bytes);return Array.from(new Uint8Array(digest)).map(b=>b.toString(16).padStart(2,'0')).join('')}
+const FSF_TOUR_KEY='fsf_tour_state_v1';
+
+function isTour(){
+  try{return new URLSearchParams(location.search).has('tourframe')}catch(e){return false}
+}
+function tourSeed(){
+  return {
+    name:'Geraldine Demo',firstName:'Geraldine',lastName:'Demo',
+    whatsapp:'+550000000000',userCreated:true,loggedIn:true,rememberMe:true,
+    accountReadySeen:true,tripId:'japon-oct-2026',tripJoinedAt:new Date().toISOString(),
+    profileComplete:true,profileReadySeen:true,travelDataStarted:true,travelDataComplete:true,
+    extrasComplete:true,permissionsComplete:true,onboardingComplete:true,
+    nationality:'Chile',age:'40 - 50',travelWith:'Solo/a',
+    interests:['Gastronomía','Cultura','Fotografía'],personality:['Amistoso/a','Aventurero/a']
+  };
+}
+function readState(){
+  try{
+    if(isTour()){
+      const saved=JSON.parse(sessionStorage.getItem(FSF_TOUR_KEY)||'null');
+      return saved||tourSeed();
+    }
+    return JSON.parse(localStorage.getItem(FSF_KEY))||{};
+  }catch{return isTour()?tourSeed():{}}
+}
+function writeState(patch){
+  const next={...readState(),...patch,updatedAt:new Date().toISOString()};
+  if(isTour())sessionStorage.setItem(FSF_TOUR_KEY,JSON.stringify(next));
+  else localStorage.setItem(FSF_KEY,JSON.stringify(next));
+  return next;
+}
+function splitName(full){
+  const parts=String(full||'').trim().split(/\s+/).filter(Boolean);
+  if(parts.length<=1)return{firstName:parts[0]||'',lastName:''};
+  return{firstName:parts.slice(0,-1).join(' '),lastName:parts[parts.length-1]};
+}
+function normalizePhone(value){
+  const digits=String(value||'').replace(/\D/g,'');
+  return digits?'+'+digits:'+';
+}
+function makeSalt(){
+  if(crypto.randomUUID)return crypto.randomUUID();
+  const a=new Uint32Array(4);crypto.getRandomValues(a);return Array.from(a).join('-');
+}
+async function hashPassword(password,salt){
+  const bytes=new TextEncoder().encode(salt+'::'+password);
+  const digest=await crypto.subtle.digest('SHA-256',bytes);
+  return Array.from(new Uint8Array(digest)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
 async function saveLocalAccount(name,whatsapp,password){
   const phone=normalizePhone(whatsapp),names=splitName(name),salt=makeSalt(),passwordHash=await hashPassword(password,salt);
-  const account={name,firstName:names.firstName,lastName:names.lastName,whatsapp:phone,passwordSalt:salt,passwordHash,userCreated:true,loggedIn:true,rememberMe:true};
-  localStorage.setItem('fsf_user',JSON.stringify(account));
+  const account={name,firstName:names.firstName,lastName:names.lastName,whatsapp:phone,passwordSalt:salt,passwordHash,userCreated:true,loggedIn:true,rememberMe:true,accountReadySeen:false};
+  if(!isTour())localStorage.setItem('fsf_user',JSON.stringify(account));
   return writeState({...account,localMode:true});
 }
 async function loginLocal(whatsapp,password){
+  if(isTour())return writeState({...tourSeed(),loggedIn:true});
   let legacy=null;try{legacy=JSON.parse(localStorage.getItem('fsf_user')||'null')}catch(e){}
   if(!legacy){const current=readState();if(current?.userCreated)legacy=current}
   if(!legacy)return null;
@@ -28,13 +72,48 @@ async function loginLocal(whatsapp,password){
   const current=readState(),names=splitName(legacy.name||'');
   return writeState({...current,...legacy,firstName:current.firstName||legacy.firstName||names.firstName,lastName:current.lastName||legacy.lastName||names.lastName,whatsapp:phone,localMode:true});
 }
-function requireUser(){const s=readState();if(!s.userCreated||!s.loggedIn){location.href='/login';return null}return s}
-function nextRoute(){const s=readState();if(!s.tripId)return'/elegir-viaje.html';if(!s.profileComplete)return'/mi-perfil.html';return'/mi-viaje.html'}
-const TRIPS={'japon-oct-2026':'Japón · Octubre 2026','japon-ene-2027':'Japón · Enero 2027','islandia-feb-2027':'Islandia · Febrero 2027','china-abr-2027':'China · Abril 2027'};
-const TRIP_ART={'japon-oct-2026':'/assets/viajes/japon-oct-2026.webp','japon-ene-2027':'/assets/viajes/japon-ene-2027.webp','islandia-feb-2027':'/assets/trip-islandia-feb-2027.svg','china-abr-2027':'/assets/viajes/china-abr-2027.webp'};
+function requireUser(){
+  const s=readState();
+  if(!s.userCreated||!s.loggedIn){
+    if(!isTour())location.href='/login';
+    return isTour()?tourSeed():null;
+  }
+  return s;
+}
+function nextRoute(){
+  const s=readState();
+  if(!s.userCreated)return'/crear-cuenta.html';
+  if(!s.accountReadySeen)return'/usuario-listo.html';
+  if(!s.tripId)return'/elegir-viaje.html';
+  if(!s.profileComplete)return'/mi-viaje.html';
+  if(!s.profileReadySeen)return'/perfil-listo.html';
+  if(!s.travelDataComplete)return'/datos-viaje.html';
+  if(!s.extrasComplete)return'/extras-viaje.html';
+  if(!s.permissionsComplete)return'/permisos-viaje.html';
+  return'/home.html';
+}
+const TRIPS={
+  'japon-oct-2026':'Japón · Octubre 2026',
+  'japon-ene-2027':'Japón · Enero 2027',
+  'islandia-feb-2027':'Islandia · Febrero 2027',
+  'china-abr-2027':'China · Abril 2027'
+};
+const TRIP_DATES={
+  'japon-oct-2026':{start:'2026-10-20',end:'2026-10-29'},
+  'japon-ene-2027':{start:'2027-01-15',end:'2027-01-29'},
+  'islandia-feb-2027':{start:'2027-02-01',end:'2027-02-13'},
+  'china-abr-2027':{start:'2027-04-05',end:'2027-04-24'}
+};
+const TRIP_ART={
+  'japon-oct-2026':'/assets/viajes/japon-oct-2026.webp',
+  'japon-ene-2027':'/assets/viajes/japon-ene-2027.webp',
+  'islandia-feb-2027':'/assets/trip-islandia-feb-2027.svg',
+  'china-abr-2027':'/assets/viajes/china-abr-2027.webp'
+};
 function tripLabel(id){return TRIPS[id]||id||''}
 function tripArt(id){return TRIP_ART[id]||''}
+function tripDates(id){return TRIP_DATES[id]||null}
 function dbOpen(){return new Promise((resolve,reject)=>{const r=indexedDB.open('fsf_travel_files',1);r.onupgradeneeded=()=>{if(!r.result.objectStoreNames.contains('files'))r.result.createObjectStore('files')};r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error)})}
 async function saveLocalFile(key,file){if(!file)return;const db=await dbOpen();await new Promise((resolve,reject)=>{const tx=db.transaction('files','readwrite');tx.objectStore('files').put({name:file.name,type:file.type,blob:file,updatedAt:new Date().toISOString()},key);tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error)})}
 async function getLocalFile(key){const db=await dbOpen();return await new Promise((resolve,reject)=>{const tx=db.transaction('files','readonly');const q=tx.objectStore('files').get(key);q.onsuccess=()=>resolve(q.result||null);q.onerror=()=>reject(q.error)})}
-window.FSF={readState,writeState,splitName,normalizePhone,hashPassword,saveLocalAccount,loginLocal,requireUser,nextRoute,tripLabel,tripArt,saveLocalFile,getLocalFile};
+window.FSF={readState,writeState,splitName,normalizePhone,hashPassword,saveLocalAccount,loginLocal,requireUser,nextRoute,tripLabel,tripArt,tripDates,saveLocalFile,getLocalFile,isTour};

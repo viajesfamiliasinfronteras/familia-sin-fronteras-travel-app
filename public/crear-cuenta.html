@@ -53,10 +53,10 @@ document.getElementById('signup').onsubmit=async(e)=>{
   const name=document.getElementById('name').value.trim();
   const whatsapp=FSF.normalizePhone(phone.value);
   const password=p.value;
-  if(!name||whatsapp.length<8||password.length<6){status.textContent='Completa los datos. La contraseña debe tener al menos 6 caracteres.';return}
+  if(!FSF.isTour()&&(!name||whatsapp.length<8||password.length<6)){status.textContent='Completa los datos. La contraseña debe tener al menos 6 caracteres.';return}
   submitBtn.disabled=true;status.textContent='Creando tu cuenta...';
-  await FSF.saveLocalAccount(name,whatsapp,password);
-  location.href='/elegir-viaje.html';
+  await FSF.saveLocalAccount(name||'Geraldine Demo',whatsapp.length>7?whatsapp:'+550000000000',password||'demo123');
+  location.href='/usuario-listo.html'+(FSF.isTour()?'?tourframe=1':'');
 };
 </script>
 </body>

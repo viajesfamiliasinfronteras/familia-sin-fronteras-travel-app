@@ -1,0 +1,26 @@
+<!doctype html><html lang="es"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Visita de la app</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#eee7d9;font-family:Arial,sans-serif;color:#172019}.tour{min-height:100vh;display:grid;grid-template-columns:260px 1fr}.side{background:#173027;color:#fff;padding:22px 16px;overflow:auto}.side h1{font-size:22px;margin:0 0 6px}.side p{font-size:12px;opacity:.8;line-height:1.4}.steps{display:grid;gap:6px;margin-top:18px}.step{border:0;background:transparent;color:#fff;text-align:left;padding:9px 10px;border-radius:10px;cursor:pointer}.step.active{background:#e5a72f;color:#172019;font-weight:800}.stage{display:grid;grid-template-rows:auto 1fr;padding:14px}.controls{display:flex;justify-content:center;align-items:center;gap:12px;margin-bottom:10px}.controls button{border:2px solid #172019;border-radius:999px;background:#fff7e8;padding:9px 16px;font-weight:800;cursor:pointer}.label{min-width:220px;text-align:center;font-weight:900}.phone{margin:auto;width:min(430px,100%);height:calc(100vh - 82px);max-height:900px;background:white;border:8px solid #111;border-radius:38px;overflow:hidden;box-shadow:0 15px 40px rgba(0,0,0,.16)}iframe{width:100%;height:100%;border:0;background:#f5eddc}@media(max-width:800px){.tour{grid-template-columns:1fr}.side{display:none}.stage{padding:8px}.phone{height:calc(100vh - 70px);border-width:4px;border-radius:24px}.label{min-width:150px;font-size:12px}}
+</style></head><body><div class="tour"><aside class="side"><h1>Visita turística</h1><p>Recorre el flujo real sin crear usuarios ni modificar tus datos. Puedes usar las flechas o tocar cada paso.</p><div class="steps" id="steps"></div></aside><main class="stage"><div class="controls"><button id="prev">← Anterior</button><div class="label" id="label"></div><button id="next">Siguiente →</button></div><div class="phone"><iframe id="frame"></iframe></div></main></div>
+<script>
+const tourSteps=[
+['Inicio','/?tourframe=1'],
+['Crear usuario','/crear-cuenta.html?tourframe=1'],
+['Usuario listo','/usuario-listo.html?tourframe=1'],
+['Elegir viaje','/elegir-viaje.html?tourframe=1'],
+['Tu viaje','/mi-viaje.html?tourframe=1'],
+['Crear perfil','/mi-perfil.html?tourframe=1'],
+['Perfil listo','/perfil-listo.html?tourframe=1'],
+['Datos de viaje','/datos-viaje.html?tourframe=1'],
+['Extras de viaje','/extras-viaje.html?tourframe=1'],
+['Permisos','/permisos-viaje.html?tourframe=1'],
+['Home','/home.html?tourframe=1']
+];
+let i=0;const frame=document.getElementById('frame'),list=document.getElementById('steps');
+tourSteps.forEach((s,n)=>{const b=document.createElement('button');b.className='step';b.textContent=(n+1)+'. '+s[0];b.onclick=()=>go(n);list.appendChild(b)});
+function go(n){i=Math.max(0,Math.min(tourSteps.length-1,n));frame.src=tourSteps[i][1];label.textContent=(i+1)+' / '+tourSteps.length+' · '+tourSteps[i][0];[...list.children].forEach((b,n)=>b.classList.toggle('active',n===i));prev.disabled=i===0;next.disabled=i===tourSteps.length-1}
+prev.onclick=()=>go(i-1);next.onclick=()=>go(i+1);
+frame.addEventListener('load',()=>{try{const u=new URL(frame.contentWindow.location.href);if(!u.searchParams.has('tourframe')){u.searchParams.set('tourframe','1');frame.contentWindow.location.replace(u.pathname+u.search)}}catch(e){}});
+go(0);
+</script></body></html>

@@ -1,163 +1,31 @@
-<!doctype html>
-<html lang="es">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<link rel="stylesheet" href="/app.css">
-<title>Datos de tu viaje</title>
+<!doctype html><html lang="es"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><link rel="stylesheet" href="/app.css"><title>Datos de viaje</title>
 <style>
-.page{min-height:100svh;padding:12px;background:
-linear-gradient(rgba(255,248,232,.92) 2px,transparent 2px),
-linear-gradient(90deg,rgba(255,248,232,.92) 2px,transparent 2px),
-var(--terracotta);background-size:46px 46px}
-.sheet{background:var(--cream);border-radius:28px;padding:14px 14px 26px;min-height:calc(100svh - 24px)}
-.top{display:flex;align-items:center;gap:10px;margin-bottom:8px}.trip-badge{display:inline-flex;padding:5px 10px;border:1.5px solid var(--ink);border-radius:999px;background:var(--mustard);font:700 11px "Courier Prime",monospace;text-transform:uppercase}
-h1{font-size:44px;margin:8px 0 4px}.intro{margin:0 0 16px;font-size:14px;line-height:1.35}
-.section{border:2px solid var(--ink);border-radius:20px;background:rgba(255,250,235,.72);padding:13px;margin-bottom:12px}.section h2{font-family:"DM Serif Display",serif;font-size:25px;margin:0 0 10px}
-.upload{border:2px dashed rgba(17,23,18,.55);border-radius:16px;background:rgba(255,255,255,.35);min-height:92px;display:grid;place-items:center;text-align:center;padding:10px;margin-bottom:10px;cursor:pointer}.upload input{display:none}.upload strong{display:block;font-size:14px}.upload small{display:block;margin-top:3px;font-size:11px}.file-name{font-size:11px;font-weight:800;margin-top:6px;word-break:break-all}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}.wrap{display:grid;gap:5px}.wrap label{font-size:12px;font-weight:800}.field{height:50px;border-radius:13px;font-size:14px}.full{grid-column:1/-1}.chips{display:flex;gap:6px;flex-wrap:wrap}.choice{border:1.7px solid var(--ink);border-radius:999px;padding:8px 11px;background:rgba(255,255,255,.3);font-size:12px;font-weight:700}.choice.selected{background:var(--terracotta);color:#fff}.hint{font:700 11px "Courier Prime",monospace;line-height:1.35;margin:7px 0 0}.page .primary{margin-top:4px;background:var(--olive);color:#fff;border-color:var(--olive)}
-</style>
-</head>
-<body>
-<main class="app page">
-<section class="sheet">
-  <div class="top">
-    <a class="back-btn" href="/mi-viaje.html">‹</a>
-    <div class="trip-badge" id="tripBadge"></div>
-  </div>
-  <h1 class="retro-title">Datos de tu viaje</h1>
-  <p class="intro">Estos datos nos permiten saber cuándo sales, cuándo llegas y acompañarte durante cada etapa del viaje.</p>
-
-  <form id="travelForm">
-    <section class="section">
-      <h2>🛂 Documento de viaje</h2>
-      <label class="upload" for="passportFile">
-        <div><strong>Sube foto de tu pasaporte</strong><small>Imagen o PDF</small><div class="file-name" id="passportName"></div></div>
-        <input id="passportFile" type="file" accept="image/*,.pdf,application/pdf">
-      </label>
-    </section>
-    <section class="section">
-      <h2>✈ Vuelo de ida</h2>
-      <label class="upload" for="outboundFile">
-        <div><strong>Sube una captura o tu e-ticket</strong><small>Imagen o PDF</small><div class="file-name" id="outboundName"></div></div>
-        <input id="outboundFile" type="file" accept="image/*,.pdf,application/pdf">
-      </label>
-      <div class="grid2">
-        <div class="wrap"><label>Aerolínea</label><input class="field" id="outboundAirline" placeholder="Ej. LATAM"></div>
-        <div class="wrap"><label>N° de vuelo</label><input class="field" id="outboundFlight" placeholder="Ej. LA123"></div>
-        <div class="wrap"><label>Fecha de salida</label><input class="field" id="outboundDate" type="date"></div>
-        <div class="wrap"><label>Hora de salida</label><input class="field" id="outboundTime" type="time"></div>
-        <div class="wrap"><label>Sales desde</label><input class="field" id="outboundFrom" placeholder="Ciudad / aeropuerto"></div>
-        <div class="wrap"><label>Llegas a</label><input class="field" id="outboundTo" placeholder="Ciudad / aeropuerto"></div>
-      </div>
-    </section>
-
-    <section class="section">
-      <h2>↩ Vuelo de regreso</h2>
-      <label class="upload" for="returnFile">
-        <div><strong>Sube una captura o tu e-ticket</strong><small>Imagen o PDF</small><div class="file-name" id="returnName"></div></div>
-        <input id="returnFile" type="file" accept="image/*,.pdf,application/pdf">
-      </label>
-      <div class="grid2">
-        <div class="wrap"><label>Aerolínea</label><input class="field" id="returnAirline" placeholder="Ej. Iberia"></div>
-        <div class="wrap"><label>N° de vuelo</label><input class="field" id="returnFlight" placeholder="Ej. IB456"></div>
-        <div class="wrap"><label>Fecha de regreso</label><input class="field" id="returnDate" type="date"></div>
-        <div class="wrap"><label>Hora de salida</label><input class="field" id="returnTime" type="time"></div>
-        <div class="wrap"><label>Sales desde</label><input class="field" id="returnFrom" placeholder="Ciudad / aeropuerto"></div>
-        <div class="wrap"><label>Llegas a</label><input class="field" id="returnTo" placeholder="Ciudad / aeropuerto"></div>
-      </div>
-    </section>
-
-    <section class="section">
-      <h2>Detalles extra</h2>
-      <p class="small-label">¿Llegas antes de que comience el viaje?</p>
-      <div class="chips" data-single="early"><button type="button" class="choice">Sí</button><button type="button" class="choice">No</button></div>
-      <div class="wrap" style="margin-top:9px"><label>Si corresponde, fecha de llegada anticipada</label><input class="field" id="earlyDate" type="date"></div>
-
-      <p class="small-label" style="margin-top:12px">¿Te quedas después de que termina el viaje?</p>
-      <div class="chips" data-single="late"><button type="button" class="choice">Sí</button><button type="button" class="choice">No</button></div>
-      <div class="wrap" style="margin-top:9px"><label>Si corresponde, fecha de salida posterior</label><input class="field" id="lateDate" type="date"></div>
-
-      <p class="small-label" style="margin-top:12px">Traslado al llegar</p>
-      <div class="chips" data-single="transfer"><button type="button" class="choice">Grupo</button><button type="button" class="choice">Privado</button><button type="button" class="choice">Por mi cuenta</button><button type="button" class="choice">Aún no sé</button></div>
-      <p class="hint">Más adelante podremos usar esto para avisarte check-in, llegada al aeropuerto, puerta de embarque, llegada a destino y encuentro con el grupo.</p>
-    </section>
-
-    <section class="section">
-      <h2>Comentarios</h2>
-      <textarea class="field" id="comments" placeholder="Algo que debamos saber..." style="height:92px;padding-top:12px"></textarea>
-    </section>
-    <button class="primary" id="saveBtn" type="submit">GUARDAR DATOS</button>
-  </form>
-</section>
-</main>
-<script src="/app.js"></script>
-<script>
+.travel{min-height:100svh;padding:16px 14px 34px;background:var(--cream);position:relative}.head{position:relative;z-index:2;padding:8px 4px 15px}.head h1{font-size:50px;margin:8px 0 5px}.head p{margin:0;max-width:330px}.plane{position:absolute;right:15px;top:4px;font-size:64px;transform:rotate(-10deg)}.cards{display:grid;gap:10px;position:relative;z-index:2}.upload{border:2px solid var(--ink);border-radius:18px;background:var(--cream2);padding:12px;display:grid;grid-template-columns:58px 1fr;gap:10px;align-items:center}.ico{width:58px;height:58px;border-radius:13px;background:var(--terracotta);display:grid;place-items:center;font-size:30px}.upload:nth-child(2) .ico{background:var(--mustard)}.upload:nth-child(3) .ico{background:var(--olive)}.upload strong{font-size:17px;display:block}.file-btn{display:inline-flex;margin-top:6px;border:1.8px solid var(--ink);border-radius:999px;padding:7px 12px;background:white;font-size:12px;font-weight:800;cursor:pointer}.file-btn input{display:none}.fname{font-size:11px;display:block;margin-top:5px;word-break:break-all}.info{border:1.8px solid var(--ink);border-radius:16px;background:#fff4cf;padding:11px;font-size:13px}.manual{border:2px solid var(--ink);border-radius:16px;background:var(--cream2);padding:10px}.manual summary{font-weight:900;cursor:pointer}.manual-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.manual-grid .field{height:45px;font-size:13px}.primary{margin-top:14px;position:relative;z-index:2}
+</style></head><body>
+<main class="app travel"><a class="back-btn" href="/perfil-listo.html">‹</a><header class="head"><div class="plane">✈</div><h1 class="retro-title">Datos<br>de viaje</h1><p>Compártenos tu información para poder ayudarte antes y durante el viaje.</p></header>
+<form id="travelForm"><div class="cards">
+<div class="upload"><div class="ico">🛂</div><div><strong>Documento de viaje</strong><label class="file-btn">Subir foto o PDF<input id="passportFile" type="file" accept="image/*,.pdf"></label><span id="passportName" class="fname"></span></div></div>
+<div class="upload"><div class="ico">✈️</div><div><strong>Vuelo de ida</strong><label class="file-btn">Subir foto o captura<input id="outboundFile" type="file" accept="image/*,.pdf"></label><span id="outboundName" class="fname"></span></div></div>
+<div class="upload"><div class="ico">↩️</div><div><strong>Vuelo de regreso</strong><label class="file-btn">Subir foto o captura<input id="returnFile" type="file" accept="image/*,.pdf"></label><span id="returnName" class="fname"></span></div></div>
+<div class="info">💡 Si quieres, puedes subir una foto o captura. Más adelante la app podrá leer esos datos automáticamente.</div>
+<details class="manual"><summary>Datos de vuelo manuales (opcional por ahora)</summary><div class="manual-grid">
+<input class="field" id="outboundAirline" placeholder="Aerolínea ida"><input class="field" id="outboundFlight" placeholder="Vuelo ida">
+<input class="field" id="outboundDate" type="date"><input class="field" id="outboundTime" type="time">
+<input class="field" id="outboundFrom" placeholder="Desde"><input class="field" id="outboundTo" placeholder="Hasta">
+<input class="field" id="returnAirline" placeholder="Aerolínea regreso"><input class="field" id="returnFlight" placeholder="Vuelo regreso">
+<input class="field" id="returnDate" type="date"><input class="field" id="returnTime" type="time">
+<input class="field" id="returnFrom" placeholder="Desde"><input class="field" id="returnTo" placeholder="Hasta">
+</div></details>
+</div><button class="primary" id="saveBtn" type="submit">CONTINUAR</button></form></main>
+<script src="/app.js"></script><script>
 let state=FSF.requireUser();
-function setupSingle(key,current){
-  const box=document.querySelector('[data-single="'+key+'"]');
-  if(!box)return;
-  box.querySelectorAll('button').forEach(b=>{
-    if(b.textContent.trim()===current)b.classList.add('selected');
-    b.onclick=()=>{box.querySelectorAll('button').forEach(x=>x.classList.remove('selected'));b.classList.add('selected')}
-  });
-}
-function one(key){return document.querySelector('[data-single="'+key+'"] .selected')?.textContent.trim()||''}
 function setFileLabel(input,label){input.onchange=()=>{label.textContent=input.files?.[0]?.name||''}}
 setFileLabel(passportFile,passportName);setFileLabel(outboundFile,outboundName);setFileLabel(returnFile,returnName);
-
-(async()=>{
-  if(!state)return;
-  if(!state.tripId){location.replace('/elegir-viaje.html');return}
-  if(!state.profileComplete){location.replace('/mi-perfil.html');return}
-  tripBadge.textContent=FSF.tripLabel(state.tripId);
-  const travel=state.travelData||{};
-  const ids=['outboundAirline','outboundFlight','outboundDate','outboundTime','outboundFrom','outboundTo','returnAirline','returnFlight','returnDate','returnTime','returnFrom','returnTo','earlyDate','lateDate','comments'];
-  ids.forEach(id=>{if(travel[id]!==undefined&&document.getElementById(id))document.getElementById(id).value=travel[id]||''});
-  setupSingle('early',travel.early||'');setupSingle('late',travel.late||'');setupSingle('transfer',travel.transfer||'');
-  const prefix=state.whatsapp+':'+state.tripId+':';
-  const [pass,out,ret]=await Promise.all([
-    FSF.getLocalFile(prefix+'passport'),
-    FSF.getLocalFile(prefix+'outbound_ticket'),
-    FSF.getLocalFile(prefix+'return_ticket')
-  ]);
-  passportName.textContent=pass?.name||travel.passportFileName||'';
-  outboundName.textContent=out?.name||travel.outboundFileName||'';
-  returnName.textContent=ret?.name||travel.returnFileName||'';
-})();
-
-travelForm.onsubmit=async e=>{
-  e.preventDefault();
-  if(!state?.tripId)return;
-  saveBtn.disabled=true;saveBtn.textContent='GUARDANDO...';
-  try{
-    const prefix=state.whatsapp+':'+state.tripId+':';
-    const pass=passportFile.files?.[0]||null,out=outboundFile.files?.[0]||null,ret=returnFile.files?.[0]||null;
-    await Promise.all([
-      pass?FSF.saveLocalFile(prefix+'passport',pass):Promise.resolve(),
-      out?FSF.saveLocalFile(prefix+'outbound_ticket',out):Promise.resolve(),
-      ret?FSF.saveLocalFile(prefix+'return_ticket',ret):Promise.resolve()
-    ]);
-    const data={
-      tripId:state.tripId,
-      outboundAirline:outboundAirline.value.trim(),outboundFlight:outboundFlight.value.trim(),
-      outboundDate:outboundDate.value,outboundTime:outboundTime.value,outboundFrom:outboundFrom.value.trim(),outboundTo:outboundTo.value.trim(),
-      returnAirline:returnAirline.value.trim(),returnFlight:returnFlight.value.trim(),
-      returnDate:returnDate.value,returnTime:returnTime.value,returnFrom:returnFrom.value.trim(),returnTo:returnTo.value.trim(),
-      early:one('early'),earlyDate:earlyDate.value,late:one('late'),lateDate:lateDate.value,
-      transfer:one('transfer'),comments:comments.value.trim(),
-      passportFileName:pass?.name||passportName.textContent||'',
-      outboundFileName:out?.name||outboundName.textContent||'',
-      returnFileName:ret?.name||returnName.textContent||''
-    };
-    state=FSF.writeState({travelData:data,travelDataStarted:true,travelDataComplete:true});
-    alert('Datos y documentos guardados ✓');
-  }catch(err){
-    alert('No pudimos guardar todo. '+(err.message||''));
-  }finally{
-    saveBtn.disabled=false;saveBtn.textContent='GUARDAR DATOS';
-  }
-};
-</script>
-</body>
-</html>
+travelForm.onsubmit=async e=>{e.preventDefault();saveBtn.disabled=true;saveBtn.textContent='GUARDANDO...';try{
+const prefix=(state.whatsapp||'demo')+':'+(state.tripId||'japon-oct-2026')+':';const pass=passportFile.files?.[0]||null,out=outboundFile.files?.[0]||null,ret=returnFile.files?.[0]||null;
+await Promise.all([pass?FSF.saveLocalFile(prefix+'passport',pass):Promise.resolve(),out?FSF.saveLocalFile(prefix+'outbound_ticket',out):Promise.resolve(),ret?FSF.saveLocalFile(prefix+'return_ticket',ret):Promise.resolve()]);
+const data={tripId:state.tripId||'japon-oct-2026',outboundAirline:outboundAirline.value.trim(),outboundFlight:outboundFlight.value.trim(),outboundDate:outboundDate.value,outboundTime:outboundTime.value,outboundFrom:outboundFrom.value.trim(),outboundTo:outboundTo.value.trim(),returnAirline:returnAirline.value.trim(),returnFlight:returnFlight.value.trim(),returnDate:returnDate.value,returnTime:returnTime.value,returnFrom:returnFrom.value.trim(),returnTo:returnTo.value.trim(),passportFileName:pass?.name||'',outboundFileName:out?.name||'',returnFileName:ret?.name||''};
+state=FSF.writeState({travelData:data,travelDataStarted:true,travelDataComplete:true});location.href='/extras-viaje.html'+(FSF.isTour()?'?tourframe=1':'');
+}catch(err){alert('No pudimos guardar todo. '+(err.message||''));}finally{saveBtn.disabled=false;saveBtn.textContent='CONTINUAR';}};
+</script></body></html>

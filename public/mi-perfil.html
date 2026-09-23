@@ -256,7 +256,7 @@ function setupMulti(key,current){
 }
 (async()=>{
   if(!state)return;
-  if(state.profileComplete&&!new URLSearchParams(location.search).has('edit')){location.replace('/mi-viaje.html');return}
+  if(state.profileComplete&&!new URLSearchParams(location.search).has('edit')&&!FSF.isTour()){location.replace('/home.html');return}
   if(!state.tripId){location.replace('/elegir-viaje.html');return}
   tripBadge.textContent=FSF.tripLabel(state.tripId);
   firstName.value=state.firstName||''; lastName.value=state.lastName||'';
@@ -290,7 +290,7 @@ profileForm.onsubmit=async e=>{
     about:about.value.trim(),tripId:state.tripId,profileComplete:true,profileCreatedAt:state.profileCreatedAt||new Date().toISOString()
   };
   state=FSF.writeState(payload);
-  location.href='/mi-viaje.html';
+  location.href='/perfil-listo.html'+(FSF.isTour()?'?tourframe=1':'');
 };
 </script>
 </body>

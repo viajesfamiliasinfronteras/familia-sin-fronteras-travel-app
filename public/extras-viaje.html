@@ -1,0 +1,16 @@
+<!doctype html><html lang="es"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><link rel="stylesheet" href="/app.css"><title>Extras de viaje</title>
+<style>
+.extras{min-height:100svh;padding:16px 14px 34px;background:var(--cream);position:relative}.head{padding:8px 4px 15px}.head h1{font-size:50px;margin:8px 0 5px}.head p{margin:0}.box{border:2px solid var(--ink);border-radius:18px;background:var(--cream2);padding:12px;margin:9px 0}.box h3{margin:0 0 8px;font-size:16px}.opts{display:flex;gap:7px;flex-wrap:wrap}.opt{border:1.7px solid var(--ink);border-radius:999px;background:white;padding:8px 14px;font-weight:800}.opt.selected{background:var(--olive);color:white}.dates{display:grid;grid-template-columns:1fr 1fr;gap:8px}.dates .field{height:46px}.primary{margin-top:13px}
+</style></head><body><main class="app extras"><a class="back-btn" href="/datos-viaje.html">‹</a><header class="head"><h1 class="retro-title">Extras<br>de viaje</h1><p>Cuéntanos si contrataste servicios adicionales.</p></header>
+<form id="extrasForm">
+<div class="box"><h3>🚕 Traslado privado aeropuerto → hotel</h3><div class="opts" data-key="arrivalTransfer"><button type="button" class="opt">Sí</button><button type="button" class="opt">No</button></div></div>
+<div class="box"><h3>🚕 Traslado hotel → aeropuerto</h3><div class="opts" data-key="departureTransfer"><button type="button" class="opt">Sí</button><button type="button" class="opt">No</button></div></div>
+<div class="box"><h3>🛏️ Noche extra de hotel</h3><div class="opts" data-key="extraNight"><button type="button" class="opt">No</button><button type="button" class="opt">Antes</button><button type="button" class="opt">Después</button></div></div>
+<div class="box"><h3>📅 Fecha de noche extra</h3><div class="dates"><input class="field" id="arrivalExtraDate" type="date"><input class="field" id="departureExtraDate" type="date"></div></div>
+<div class="box"><h3>💬 Comentarios</h3><textarea class="field" id="comments" placeholder="Escribe aquí..."></textarea></div>
+<button class="primary" type="submit">GUARDAR Y CONTINUAR</button></form></main>
+<script src="/app.js"></script><script>
+let state=FSF.requireUser();document.querySelectorAll('.opts').forEach(g=>g.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{g.querySelectorAll('.opt').forEach(x=>x.classList.remove('selected'));b.classList.add('selected')}));
+extrasForm.onsubmit=e=>{e.preventDefault();const val=k=>document.querySelector('[data-key="'+k+'"] .selected')?.textContent.trim()||'';FSF.writeState({extrasData:{arrivalTransfer:val('arrivalTransfer'),departureTransfer:val('departureTransfer'),extraNight:val('extraNight'),arrivalExtraDate:arrivalExtraDate.value,departureExtraDate:departureExtraDate.value,comments:comments.value.trim()},extrasComplete:true});location.href='/permisos-viaje.html'+(FSF.isTour()?'?tourframe=1':'')};
+</script></body></html>
